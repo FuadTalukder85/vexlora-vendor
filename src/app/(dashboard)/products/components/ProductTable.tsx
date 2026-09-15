@@ -7,6 +7,7 @@ import { Edit, Trash2, Eye, Plus, Search, Filter } from "lucide-react";
 import { Product } from "@/types/product";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const mockProducts: Product[] = [
@@ -88,6 +89,333 @@ const mockProducts: Product[] = [
     createdAt: "2026-09-14T00:00:00Z",
     updatedAt: "2026-09-14T00:00:00Z",
   },
+  {
+    id: "p-106",
+    vendorId: "v-prof-1",
+    title: "Ergonomic Wireless Gaming Mouse 16000 DPI",
+    slug: "ergonomic-wireless-gaming-mouse",
+    description: "Lightweight honeycomb wireless gaming mouse with optical sensor and PTFE feet.",
+    category: "Gaming",
+    basePrice: 69.99,
+    compareAtPrice: 79.99,
+    stock: 64,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=300"],
+    salesCount: 240,
+    createdAt: "2026-04-12T00:00:00Z",
+    updatedAt: "2026-09-11T00:00:00Z",
+  },
+  {
+    id: "p-107",
+    vendorId: "v-prof-1",
+    title: "Dual 4K USB-C Docking Station 100W PD",
+    slug: "dual-4k-usb-c-docking-station",
+    description: "Multi-port hub with dual HDMI, DisplayPort, Gigabit Ethernet, and SD card reader.",
+    category: "Accessories",
+    basePrice: 119.0,
+    compareAtPrice: 139.0,
+    stock: 28,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=300"],
+    salesCount: 175,
+    createdAt: "2026-05-02T00:00:00Z",
+    updatedAt: "2026-09-09T00:00:00Z",
+  },
+  {
+    id: "p-108",
+    vendorId: "v-prof-1",
+    title: "Smart Bluetooth Fitness Tracker Watch",
+    slug: "smart-bluetooth-fitness-tracker",
+    description: "AMOLED touchscreen smartwatch with SpO2 monitoring, GPS and 14-day battery life.",
+    category: "Electronics",
+    basePrice: 159.99,
+    stock: 8,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300"],
+    salesCount: 390,
+    createdAt: "2026-03-18T00:00:00Z",
+    updatedAt: "2026-09-13T00:00:00Z",
+  },
+  {
+    id: "p-109",
+    vendorId: "v-prof-1",
+    title: "Hi-Fi Desktop Bookshelf Speakers 80W",
+    slug: "hifi-desktop-bookshelf-speakers",
+    description: "Wood enclosure active Bluetooth speakers with optical input and sub-out support.",
+    category: "Audio",
+    basePrice: 199.0,
+    compareAtPrice: 229.0,
+    stock: 14,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1545454675-3531b543be5d?w=300"],
+    salesCount: 95,
+    createdAt: "2026-06-10T00:00:00Z",
+    updatedAt: "2026-09-10T00:00:00Z",
+  },
+  {
+    id: "p-110",
+    vendorId: "v-prof-1",
+    title: "NVMe M.2 2TB High-Speed Internal SSD",
+    slug: "nvme-m2-2tb-high-speed-ssd",
+    description: "PCIe 4.0 read speeds up to 7450 MB/s with custom heatsink for PC and console.",
+    category: "Computers",
+    basePrice: 179.99,
+    compareAtPrice: 199.99,
+    stock: 0,
+    status: "OUT_OF_STOCK",
+    images: ["https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=300"],
+    salesCount: 610,
+    createdAt: "2025-12-01T00:00:00Z",
+    updatedAt: "2026-09-15T00:00:00Z",
+  },
+  {
+    id: "p-111",
+    vendorId: "v-prof-1",
+    title: "Extended XL Desk Pad Mouse Pad (900x400mm)",
+    slug: "extended-xl-desk-pad-mouse-pad",
+    description: "Water-resistant micro-weave cloth mat with stitched anti-fray edges.",
+    category: "Accessories",
+    basePrice: 24.99,
+    stock: 150,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1616440347437-b1c73416efc2?w=300"],
+    salesCount: 820,
+    createdAt: "2026-01-05T00:00:00Z",
+    updatedAt: "2026-09-07T00:00:00Z",
+  },
+  {
+    id: "p-112",
+    vendorId: "v-prof-1",
+    title: "USB Webcam 4K HDR with Dual Noise Mic",
+    slug: "usb-webcam-4k-hdr-dual-mic",
+    description: "Autofocus 4K streaming camera with privacy shutter and tripod mount.",
+    category: "Electronics",
+    basePrice: 99.0,
+    compareAtPrice: 119.0,
+    stock: 35,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=300"],
+    salesCount: 185,
+    createdAt: "2026-04-20T00:00:00Z",
+    updatedAt: "2026-09-12T00:00:00Z",
+  },
+  {
+    id: "p-113",
+    vendorId: "v-prof-1",
+    title: "Wireless Controller with Hall Effect Joysticks",
+    slug: "wireless-controller-hall-effect",
+    description: "Multi-platform Bluetooth gamepad with zero drift analog sticks and programmable back paddles.",
+    category: "Gaming",
+    basePrice: 59.99,
+    stock: 42,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=300"],
+    salesCount: 310,
+    createdAt: "2026-05-15T00:00:00Z",
+    updatedAt: "2026-09-14T00:00:00Z",
+  },
+  {
+    id: "p-114",
+    vendorId: "v-prof-1",
+    title: "Foldable Portable Monitor 15.6-Inch IPS 1080P",
+    slug: "foldable-portable-monitor-15-inch",
+    description: "Slim USB-C second display with protective cover stand for laptops and smartphones.",
+    category: "Computers",
+    basePrice: 149.0,
+    compareAtPrice: 169.0,
+    stock: 19,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1547082299-de196ea013d6?w=300"],
+    salesCount: 140,
+    createdAt: "2026-06-01T00:00:00Z",
+    updatedAt: "2026-09-10T00:00:00Z",
+  },
+  {
+    id: "p-115",
+    vendorId: "v-prof-1",
+    title: "RGB Light Bar Monitor Screen Lamp",
+    slug: "rgb-light-bar-monitor-lamp",
+    description: "Asymmetric optical glare-free eye protection desk light with wireless touch dial.",
+    category: "Accessories",
+    basePrice: 44.99,
+    stock: 5,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300"],
+    salesCount: 265,
+    createdAt: "2026-03-25T00:00:00Z",
+    updatedAt: "2026-09-13T00:00:00Z",
+  },
+  {
+    id: "p-116",
+    vendorId: "v-prof-1",
+    title: "High Precision Mechanical Keycaps Set PBT",
+    slug: "mechanical-keycaps-set-pbt",
+    description: "135-key double-shot PBT Cherry profile keycap set for custom mechanical keyboards.",
+    category: "Gaming",
+    basePrice: 34.99,
+    stock: 80,
+    status: "DRAFT",
+    images: ["https://images.unsplash.com/photo-1595225476474-87563907a212?w=300"],
+    salesCount: 0,
+    createdAt: "2026-09-15T00:00:00Z",
+    updatedAt: "2026-09-15T00:00:00Z",
+  },
+  {
+    id: "p-117",
+    vendorId: "v-prof-1",
+    title: "Fast Wireless Charging Stand 15W",
+    slug: "fast-wireless-charging-stand-15w",
+    description: "Qi-certified dual coil vertical charging stand for iOS and Android devices.",
+    category: "Electronics",
+    basePrice: 29.99,
+    compareAtPrice: 34.99,
+    stock: 95,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1622445268465-84288045f5fa?w=300"],
+    salesCount: 430,
+    createdAt: "2026-02-18T00:00:00Z",
+    updatedAt: "2026-09-08T00:00:00Z",
+  },
+  {
+    id: "p-118",
+    vendorId: "v-prof-1",
+    title: "Active Noise-Cancelling Earbuds True Wireless",
+    slug: "anc-earbuds-true-wireless",
+    description: "Bluetooth 5.3 earbuds with 32h playback, wireless charging case and IPX7 rating.",
+    category: "Audio",
+    basePrice: 79.99,
+    compareAtPrice: 99.99,
+    stock: 52,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300"],
+    salesCount: 510,
+    createdAt: "2026-01-30T00:00:00Z",
+    updatedAt: "2026-09-12T00:00:00Z",
+  },
+  {
+    id: "p-119",
+    vendorId: "v-prof-1",
+    title: "Heavy Duty Gas Spring Dual Monitor Arm",
+    slug: "gas-spring-dual-monitor-arm",
+    description: "Desk clamp VESA mount bracket supporting 17 to 32 inch screens up to 9kg each.",
+    category: "Accessories",
+    basePrice: 79.0,
+    stock: 22,
+    status: "ACTIVE",
+    images: ["https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=300"],
+    salesCount: 160,
+    createdAt: "2026-04-05T00:00:00Z",
+    updatedAt: "2026-09-11T00:00:00Z",
+  },
+  {
+    id: "p-120",
+    vendorId: "v-prof-1",
+    title: "Custom Coiled Aviator USB-C Cable",
+    slug: "custom-coiled-aviator-usbc-cable",
+    description: "Double-sleeved braided cable with GX16 detachable metal aviator connector.",
+    category: "Gaming",
+    basePrice: 28.5,
+    stock: 0,
+    status: "OUT_OF_STOCK",
+    images: ["https://images.unsplash.com/photo-1544652478-6653e09f18a2?w=300"],
+    salesCount: 380,
+    createdAt: "2026-03-10T00:00:00Z",
+    updatedAt: "2026-09-15T00:00:00Z",
+  },
+];
+
+const getStatusBadge = (status: Product["status"]) => {
+  switch (status) {
+    case "ACTIVE":
+      return <Badge variant="success">Active</Badge>;
+    case "OUT_OF_STOCK":
+      return <Badge variant="danger" className="font-bold">Out of Stock</Badge>;
+    case "DRAFT":
+      return <Badge variant="warning">Draft</Badge>;
+    case "REJECTED":
+      return <Badge variant="danger">Rejected</Badge>;
+    default:
+      return <Badge variant="neutral">{status}</Badge>;
+  }
+};
+
+const columns: ColumnDef<Product>[] = [
+  {
+    header: "Product",
+    cell: (p) => (
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 relative">
+          <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
+        </div>
+        <div className="min-w-0">
+          <p className="font-bold text-primary truncate max-w-xs">{p.title}</p>
+          <p className="text-[10px] text-slate-400 font-mono mt-0.5">SKU: {p.id}</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    header: "Category",
+    cell: (p) => <span className="font-medium text-slate-600">{p.category}</span>,
+  },
+  {
+    header: "Price",
+    cell: (p) => (
+      <div className="font-bold text-slate-800">
+        {formatCurrency(p.basePrice)}
+        {p.compareAtPrice && (
+          <span className="text-[10px] text-slate-400 line-through block font-normal">
+            {formatCurrency(p.compareAtPrice)}
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
+    header: "Stock",
+    cell: (p) => (
+      <span
+        className={
+          p.stock === 0
+            ? "font-bold text-rose-600"
+            : p.stock < 15
+              ? "font-semibold text-amber-600"
+              : "font-semibold text-slate-700"
+        }
+      >
+        {p.stock} units
+      </span>
+    ),
+  },
+  {
+    header: "Status",
+    cell: (p) => getStatusBadge(p.status),
+  },
+  {
+    header: "Sales",
+    cell: (p) => <span className="font-medium text-slate-700">{p.salesCount} sold</span>,
+  },
+  {
+    header: "Created",
+    cell: (p) => <span className="text-slate-500">{formatDate(p.createdAt)}</span>,
+  },
+  {
+    header: "Actions",
+    align: "right",
+    cell: () => (
+      <div className="flex items-center justify-end gap-1">
+        <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors">
+          <Eye className="w-4 h-4" />
+        </button>
+        <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors">
+          <Edit className="w-4 h-4" />
+        </button>
+        <button className="p-1.5 rounded-lg text-slate-400 hover:text-highlight hover:bg-rose-50 transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    ),
+  },
 ];
 
 export const ProductTable: React.FC = () => {
@@ -103,134 +431,53 @@ export const ProductTable: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadge = (status: Product["status"]) => {
-    switch (status) {
-      case "ACTIVE":
-        return <Badge variant="success">Active</Badge>;
-      case "OUT_OF_STOCK":
-        return <Badge variant="danger" className="font-bold">Out of Stock</Badge>;
-      case "DRAFT":
-        return <Badge variant="warning">Draft</Badge>;
-      case "REJECTED":
-        return <Badge variant="danger">Rejected</Badge>;
-      default:
-        return <Badge variant="neutral">{status}</Badge>;
-    }
-  };
-
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-      {/* Header Filters & Search */}
-      <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1 max-w-md">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search product title or category..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
-            />
+    <div className="">
+      <PaginateTable
+        data={filteredProducts}
+        columns={columns}
+        keyExtractor={(item) => item.id}
+        defaultPageSize={10}
+        headerContent={
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1 max-w-md">
+              <div className="relative w-full">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search product title or category..."
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-slate-200 rounded-xl">
+                <Filter className="w-3.5 h-3.5 text-slate-500" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="DRAFT">Draft</option>
+                  <option value="OUT_OF_STOCK">Out of Stock</option>
+                </select>
+              </div>
+
+              <Link href="/products/new">
+                <Button variant="primary" size="sm">
+                  <Plus className="w-4 h-4" />
+                  Add Product
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 border border-slate-200 rounded-xl">
-            <Filter className="w-3.5 h-3.5 text-slate-500" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="DRAFT">Draft</option>
-              <option value="OUT_OF_STOCK">Out of Stock</option>
-            </select>
-          </div>
-
-          <Link href="/products/new">
-            <Button variant="primary" size="sm">
-              <Plus className="w-4 h-4" />
-              Add Product
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/70 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              <th className="py-3.5 px-5">Product</th>
-              <th className="py-3.5 px-5">Category</th>
-              <th className="py-3.5 px-5">Price</th>
-              <th className="py-3.5 px-5">Stock</th>
-              <th className="py-3.5 px-5">Status</th>
-              <th className="py-3.5 px-5">Sales</th>
-              <th className="py-3.5 px-5">Created</th>
-              <th className="py-3.5 px-5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-            {filteredProducts.map((p) => (
-              <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-3.5 px-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 relative">
-                      <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-primary truncate max-w-xs">{p.title}</p>
-                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">SKU: {p.id}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-3.5 px-5 font-medium text-slate-600">{p.category}</td>
-                <td className="py-3.5 px-5 font-bold text-slate-800">
-                  {formatCurrency(p.basePrice)}
-                  {p.compareAtPrice && (
-                    <span className="text-[10px] text-slate-400 line-through block font-normal">
-                      {formatCurrency(p.compareAtPrice)}
-                    </span>
-                  )}
-                </td>
-                <td className="py-3.5 px-5">
-                  <span
-                    className={
-                      p.stock === 0
-                        ? "font-bold text-rose-600"
-                        : p.stock < 15
-                        ? "font-semibold text-amber-600"
-                        : "font-semibold text-slate-700"
-                    }
-                  >
-                    {p.stock} units
-                  </span>
-                </td>
-                <td className="py-3.5 px-5">{getStatusBadge(p.status)}</td>
-                <td className="py-3.5 px-5 font-medium text-slate-700">{p.salesCount} sold</td>
-                <td className="py-3.5 px-5 text-slate-500">{formatDate(p.createdAt)}</td>
-                <td className="py-3.5 px-5 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 rounded-lg text-slate-400 hover:text-highlight hover:bg-rose-50 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        }
+      />
     </div>
   );
 };

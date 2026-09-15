@@ -1,0 +1,81 @@
+"use client";
+
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { User, Settings, LogOut, ChevronDown, ExternalLink } from "lucide-react";
+import { useVendorStore } from "@/stores/useVendorStore";
+
+export const VendorUserMenu: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, profile } = useVendorStore();
+
+  if (!user) return null;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-slate-100 transition-colors focus:outline-none"
+      >
+        <div className="w-9 h-9 rounded-full bg-slate-200 overflow-hidden relative border border-slate-300">
+          {user.image ? (
+            <Image src={user.image} alt={user.name} fill className="object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold text-sm">
+              {user.name.charAt(0)}
+            </div>
+          )}
+        </div>
+        <div className="hidden sm:flex flex-col text-left">
+          <span className="text-xs font-bold text-primary leading-tight">{user.name}</span>
+          <span className="text-[10px] text-slate-500">{user.email}</span>
+        </div>
+        <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="px-4 py-2 border-b border-slate-100">
+              <p className="text-xs font-bold text-primary">{user.name}</p>
+              <p className="text-[11px] text-slate-500 truncate">{profile?.storeName}</p>
+            </div>
+
+            <div className="py-1">
+              <Link
+                href="/settings"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
+              >
+                <Settings className="w-4 h-4 text-slate-400" />
+                Store Settings
+              </Link>
+              <a
+                href="http://localhost:3000"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
+              >
+                <ExternalLink className="w-4 h-4 text-slate-400" />
+                View Main Marketplace
+              </a>
+            </div>
+
+            <div className="pt-1 border-t border-slate-100">
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 font-medium"
+              >
+                <LogOut className="w-4 h-4 text-rose-500" />
+                Sign Out
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};

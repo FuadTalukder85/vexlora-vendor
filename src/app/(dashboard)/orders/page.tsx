@@ -1,5 +1,5 @@
 import React from "react";
-import { OrderTable } from "@/components/orders/OrderTable";
+import { OrderTable } from "./components/OrderTable";
 
 export default function OrdersPage() {
   return (

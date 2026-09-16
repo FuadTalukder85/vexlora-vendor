@@ -8,7 +8,7 @@ import { useVendorStore } from "@/stores/useVendorStore";
 
 export const VendorUserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, profile } = useVendorStore();
+  const { user, profile, logout } = useVendorStore();
 
   if (!user) return null;
 
@@ -64,14 +64,19 @@ export const VendorUserMenu: React.FC = () => {
             </div>
 
             <div className="pt-1 border-t border-slate-100">
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 font-medium"
+              <button
+                onClick={async () => {
+                  setIsOpen(false);
+                  await logout();
+                  if (typeof window !== "undefined") {
+                    window.location.href = "/login";
+                  }
+                }}
+                className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 font-medium text-left cursor-pointer"
               >
                 <LogOut className="w-4 h-4 text-rose-500" />
                 Sign Out
-              </Link>
+              </button>
             </div>
           </div>
         </>

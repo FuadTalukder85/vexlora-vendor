@@ -20,8 +20,8 @@ export const productSchema = z
     totalStock: z.number().int().nonnegative("Stock cannot be negative"),
     status: z.enum(["ACTIVE", "DRAFT", "OUT_OF_STOCK", "REJECTED"]),
     images: z
-      .array(z.string().url("Must be a valid image URL"))
-      .min(1, "At least 1 product image URL is required"),
+      .array(z.string().min(1, "Image path or URL is required"))
+      .min(1, "At least 1 product image is required"),
     tags: z.array(z.string()),
     variants: z.array(variantSchema).optional(),
   })

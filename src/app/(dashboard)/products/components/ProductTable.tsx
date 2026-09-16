@@ -341,6 +341,10 @@ const getStatusBadge = (status: Product["status"]) => {
 
 const columns: ColumnDef<Product>[] = [
   {
+    header: "SL",
+    cell: (_, idx) => <span className="font-semibold text-slate-500 text-xs">{idx + 1}</span>,
+  },
+  {
     header: "Product",
     cell: (p) => (
       <div className="flex items-center gap-3">
@@ -432,48 +436,45 @@ export const ProductTable: React.FC = () => {
   });
 
   return (
-    <div className="">
+    <div className="flex-1 flex flex-col min-h-0">
       <PaginateTable
         data={filteredProducts}
         columns={columns}
         keyExtractor={(item) => item.id}
         defaultPageSize={10}
+        className="flex-1 min-h-0"
         headerContent={
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1 max-w-md">
-              <div className="relative w-full">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search product title or category..."
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
-                />
-              </div>
+          <div className="flex items-center justify-between">
+            {/* Status Tabs */}
+            <div className="border-b border-slate-200/80 pb-2 flex items-center gap-6 overflow-x-auto">
+              {["ALL", "ACTIVE", "DRAFT", "OUT_OF_STOCK", "REJECTED"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setStatusFilter(tab)}
+                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${statusFilter === tab
+                      ? "border-primary text-primary"
+                      : "border-transparent text-slate-500 hover:text-slate-800"
+                    }`}
+                >
+                  {tab === "ALL"
+                    ? "All Products"
+                    : tab === "OUT_OF_STOCK"
+                      ? "Out of Stock"
+                      : tab.charAt(0) + tab.slice(1).toLowerCase()}
+                </button>
+              ))}
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-slate-200 rounded-xl">
-                <Filter className="w-3.5 h-3.5 text-slate-500" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
-                >
-                  <option value="ALL">All Statuses</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="DRAFT">Draft</option>
-                  <option value="OUT_OF_STOCK">Out of Stock</option>
-                </select>
-              </div>
-
-              <Link href="/products/new">
-                <Button variant="primary" size="sm">
-                  <Plus className="w-4 h-4" />
-                  Add Product
-                </Button>
-              </Link>
+            {/* Search Input */}
+            <div className="relative w-full max-w-md">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search product title or category..."
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
+              />
             </div>
           </div>
         }

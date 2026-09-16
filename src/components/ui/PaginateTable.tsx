@@ -32,6 +32,7 @@ export interface PaginateTableProps<T> {
   className?: string;
   tableClassName?: string;
   maxHeight?: string;
+  minHeight?: string;
 }
 
 export function PaginateTable<T>({
@@ -51,7 +52,8 @@ export function PaginateTable<T>({
   onRowClick,
   className,
   tableClassName,
-  maxHeight = "max-h-[calc(100vh-180px)]",
+  maxHeight,
+  minHeight,
 }: PaginateTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
@@ -90,13 +92,14 @@ export function PaginateTable<T>({
     <div
       className={cn(
         "bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col min-h-0",
+        minHeight,
         maxHeight,
         className
       )}
     >
       {/* 1. Fixed Title & Action Header Slot */}
       {(title || action) && (
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white z-20">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white z-30">
           <div>
             {title && typeof title === "string" ? (
               <h3 className="text-base font-bold text-primary">{title}</h3>
@@ -115,7 +118,7 @@ export function PaginateTable<T>({
 
       {/* 2. Fixed Search & Filter Header Slot */}
       {headerContent && (
-        <div className="p-4 border-b border-slate-100 bg-slate-50/40 shrink-0 z-20">
+        <div className="p-4 border-b border-slate-100 bg-slate-50/40 shrink-0 z-30">
           {headerContent}
         </div>
       )}
@@ -123,13 +126,13 @@ export function PaginateTable<T>({
       {/* 3. Table Area with Fixed Header & Scrollable Body */}
       <div className="overflow-auto flex-1 min-h-0 relative">
         <table className={cn("w-full border-collapse text-left min-w-max", tableClassName)}>
-          <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs border-b border-slate-100 shadow-2xs">
-            <tr className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          <thead className="sticky top-0 z-20 bg-slate-100 shadow-2xs">
+            <tr className="text-[16px] font-bold text-primary capitalize">
               {columns.map((col, idx) => (
                 <th
                   key={idx}
                   className={cn(
-                    "py-3.5 px-5 bg-slate-50",
+                    "py-3.5 px-5 bg-slate-100 sticky top-0 z-20",
                     alignClasses[col.align || "left"],
                     col.headerClassName
                   )}
@@ -139,7 +142,7 @@ export function PaginateTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
+          <tbody className="divide-y divide-slate-100 text-sm text-primary">
             {paginatedData.length > 0 ? (
               paginatedData.map((row, rowIndex) => (
                 <tr
@@ -189,7 +192,7 @@ export function PaginateTable<T>({
 
       {/* 4. Fixed Pagination Footer Slot */}
       {showPagination && totalItems > 0 && (
-        <div className="shrink-0 bg-white z-20">
+        <div className="shrink-0 bg-white z-30 border-t border-slate-100">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

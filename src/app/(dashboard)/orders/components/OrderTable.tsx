@@ -113,6 +113,10 @@ export const OrderTable: React.FC = () => {
 
   const columns: ColumnDef<SubOrder>[] = [
     {
+      header: "SL",
+      cell: (_, idx) => <span className="font-semibold text-slate-500 text-xs">{idx + 1}</span>,
+    },
+    {
       header: "Sub-Order ID",
       cell: (o) => (
         <div>
@@ -179,25 +183,25 @@ export const OrderTable: React.FC = () => {
   ];
 
   return (
-    <>
+    <div className="flex-1 flex flex-col min-h-0">
       <PaginateTable
         data={filteredOrders}
         columns={columns}
         keyExtractor={(o) => o.id}
         defaultPageSize={10}
+        className="flex-1 min-h-0"
         headerContent={
-          <div className="space-y-3">
+          <div className="flex items-center justify-between">
             {/* Status Tabs */}
             <div className="border-b border-slate-200/80 pb-2 flex items-center gap-6 overflow-x-auto">
               {["ALL", "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${
-                    activeTab === tab
-                      ? "border-primary text-primary"
-                      : "border-transparent text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${activeTab === tab
+                    ? "border-primary text-primary"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   {tab === "ALL" ? "All Orders" : tab.charAt(0) + tab.slice(1).toLowerCase()}
                 </button>
@@ -287,6 +291,6 @@ export const OrderTable: React.FC = () => {
           </div>
         </Modal>
       )}
-    </>
+    </div>
   );
 };

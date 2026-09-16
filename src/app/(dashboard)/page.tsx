@@ -1,7 +1,7 @@
 import React from "react";
-import { DashboardStats } from "@/components/dashboard/DashboardStats";
-import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
-import { SalesOverviewChart } from "@/components/dashboard/SalesOverviewChart";
+import { DashboardStats } from "./components/DashboardStats";
+import { RecentOrdersTable } from "./components/RecentOrdersTable";
+import { SalesOverviewChart } from "./components/SalesOverviewChart";
 import { Card } from "@/components/ui/Card";
 
 export default function DashboardPage() {

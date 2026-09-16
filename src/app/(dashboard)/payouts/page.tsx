@@ -1,14 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { CreditCard, DollarSign, Download, Building } from "lucide-react";
+import { DollarSign, Download, Building } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
+import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
 
-const mockPayouts = [
+interface PayoutItem {
+  id: string;
+  amount: number;
+  status: string;
+  period: string;
+  payoutDate: string;
+  bank: string;
+}
+
+const mockPayouts: PayoutItem[] = [
   {
     id: "PAY-5012",
     amount: 14250.0,
@@ -35,18 +46,46 @@ const mockPayouts = [
   },
 ];
 
+const payoutColumns: ColumnDef<PayoutItem>[] = [
+  {
+    header: "Payout ID",
+    cell: (p) => <span className="font-bold text-primary">{p.id}</span>,
+  },
+  {
+    header: "Period",
+    cell: (p) => <span className="text-slate-600">{p.period}</span>,
+  },
+  {
+    header: "Bank Account",
+    cell: (p) => <span className="font-mono text-[11px] text-slate-500">{p.bank}</span>,
+  },
+  {
+    header: "Amount",
+    cell: (p) => <span className="font-bold text-emerald-600">{formatCurrency(p.amount)}</span>,
+  },
+  {
+    header: "Status",
+    cell: (p) => <Badge variant="success">{p.status}</Badge>,
+  },
+  {
+    header: "Receipt",
+    align: "right",
+    cell: () => (
+      <button className="p-1.5 text-slate-400 hover:text-primary transition-colors cursor-pointer">
+        <Download className="w-4 h-4" />
+      </button>
+    ),
+  },
+];
+
 export default function PayoutsPage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [requestedAmount, setRequestedAmount] = useState(2485.0);
-  const [payoutSuccess, setPayoutSuccess] = useState(false);
 
   const handlePayoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPayoutSuccess(true);
-    setTimeout(() => {
-      setPayoutSuccess(false);
-      setIsRequestModalOpen(false);
-    }, 1200);
+    toast.success(`Payout transfer request for ${formatCurrency(requestedAmount)} submitted successfully!`);
+    setIsRequestModalOpen(false);
   };
 
   return (
@@ -94,42 +133,15 @@ export default function PayoutsPage() {
       {/* Payout History & Bank Info */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <Card title="Payout History" subtitle="Previous bank transfers and payouts">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    <th className="py-3 px-4">Payout ID</th>
-                    <th className="py-3 px-4">Period</th>
-                    <th className="py-3 px-4">Bank Account</th>
-                    <th className="py-3 px-4">Amount</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-right">Receipt</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                  {mockPayouts.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50/50">
-                      <td className="py-3.5 px-4 font-bold text-primary">{p.id}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{p.period}</td>
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">{p.bank}</td>
-                      <td className="py-3.5 px-4 font-bold text-emerald-600">
-                        {formatCurrency(p.amount)}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <Badge variant="success">{p.status}</Badge>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
-                          <Download className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <PaginateTable
+            title="Payout History"
+            subtitle="Previous bank transfers and payouts"
+            data={mockPayouts}
+            columns={payoutColumns}
+            keyExtractor={(p) => p.id}
+            defaultPageSize={5}
+            showPagination={true}
+          />
         </div>
 
         <div className="space-y-6">
@@ -177,12 +189,6 @@ export default function PayoutsPage() {
             <p>Target Bank: Chase Business Checking (**** 4892)</p>
             <p>Processing Time: 1 - 2 Business Days</p>
           </div>
-
-          {payoutSuccess && (
-            <p className="p-2.5 bg-emerald-50 text-emerald-700 font-bold rounded-xl text-center">
-              Payout request submitted successfully!
-            </p>
-          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" type="button" onClick={() => setIsRequestModalOpen(false)}>

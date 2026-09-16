@@ -10,10 +10,10 @@ import { useVendorStore } from "@/stores/useVendorStore";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const { profile, setProfile } = useVendorStore();
-  const [successMessage, setSuccessMessage] = useState(false);
 
   const {
     register,
@@ -39,8 +39,7 @@ export default function SettingsPage() {
         ...data,
       });
     }
-    setSuccessMessage(true);
-    setTimeout(() => setSuccessMessage(false), 3000);
+    toast.success("Store profile settings updated successfully!");
   };
 
   return (
@@ -126,12 +125,6 @@ export default function SettingsPage() {
             />
           </div>
         </Card>
-
-        {successMessage && (
-          <div className="p-4 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-xs">
-            Store profile updated successfully!
-          </div>
-        )}
 
         <div className="flex justify-end">
           <Button type="submit" variant="primary" size="md" isLoading={isSubmitting}>

@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Search, Filter, Truck, CheckCircle, Clock } from "lucide-react";
+import { Search, Truck, CheckCircle } from "lucide-react";
 import { SubOrder, SubOrderStatus } from "@/types/order";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { toast } from "sonner";
 
 const mockOrders: SubOrder[] = [
   {
@@ -107,106 +109,121 @@ export const OrderTable: React.FC = () => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus, trackingNumber: tracking || o.trackingNumber } : o))
     );
+    toast.success(`Sub-order ${orderId} updated to ${newStatus}`);
     setSelectedOrder(null);
   };
 
-  return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-      {/* Tabs */}
-      <div className="border-b border-slate-200/80 px-5 pt-3 flex items-center gap-6 overflow-x-auto">
-        {["ALL", "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`py-3 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer ${
-              activeTab === tab
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            {tab === "ALL" ? "All Orders" : tab.charAt(0) + tab.slice(1).toLowerCase()}
-          </button>
-        ))}
-      </div>
-
-      {/* Search Bar */}
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-        <div className="relative w-full max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search order ID or customer name..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
-          />
+  const columns: ColumnDef<SubOrder>[] = [
+    {
+      header: "SL",
+      cell: (_, idx) => <span className="font-semibold text-slate-500 text-xs">{idx + 1}</span>,
+    },
+    {
+      header: "Sub-Order ID",
+      cell: (o) => (
+        <div>
+          <span className="font-bold text-primary block">{o.id}</span>
+          <span className="text-[10px] text-slate-400">Parent: {o.parentOrderId}</span>
         </div>
-      </div>
+      ),
+    },
+    {
+      header: "Customer Details",
+      cell: (o) => (
+        <div>
+          <p className="font-semibold text-slate-800">{o.customerName}</p>
+          <p className="text-[10px] text-slate-400">{o.shippingAddress}</p>
+        </div>
+      ),
+    },
+    {
+      header: "Order Items",
+      cell: (o) => (
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
+            <Image src={o.items[0].productImage} alt="" fill className="object-cover" />
+          </div>
+          <div>
+            <p className="font-medium text-slate-800">{o.items[0].productName}</p>
+            <p className="text-[10px] text-slate-400">Qty: {o.items[0].quantity}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Subtotal",
+      cell: (o) => <span className="font-semibold text-slate-800">{formatCurrency(o.subtotal)}</span>,
+    },
+    {
+      header: "Net Earnings",
+      cell: (o) => <span className="font-bold text-emerald-600">{formatCurrency(o.netPayout)}</span>,
+    },
+    {
+      header: "Status",
+      cell: (o) => <OrderStatusBadge status={o.status} />,
+    },
+    {
+      header: "Date",
+      cell: (o) => <span className="text-slate-500">{formatDate(o.createdAt)}</span>,
+    },
+    {
+      header: "Actions",
+      align: "right",
+      cell: (o) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setSelectedOrder(o);
+            setTrackingInput(o.trackingNumber || "");
+          }}
+        >
+          Manage
+        </Button>
+      ),
+    },
+  ];
 
-      {/* Orders Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/70 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              <th className="py-3.5 px-5">Sub-Order ID</th>
-              <th className="py-3.5 px-5">Customer Details</th>
-              <th className="py-3.5 px-5">Order Items</th>
-              <th className="py-3.5 px-5">Subtotal</th>
-              <th className="py-3.5 px-5">Net Earnings</th>
-              <th className="py-3.5 px-5">Status</th>
-              <th className="py-3.5 px-5">Date</th>
-              <th className="py-3.5 px-5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-            {filteredOrders.map((o) => (
-              <tr key={o.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-4 px-5">
-                  <span className="font-bold text-primary block">{o.id}</span>
-                  <span className="text-[10px] text-slate-400">Parent: {o.parentOrderId}</span>
-                </td>
-                <td className="py-4 px-5">
-                  <p className="font-semibold text-slate-800">{o.customerName}</p>
-                  <p className="text-[10px] text-slate-400">{o.shippingAddress}</p>
-                </td>
-                <td className="py-4 px-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
-                      <Image src={o.items[0].productImage} alt="" fill className="object-cover" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-800">{o.items[0].productName}</p>
-                      <p className="text-[10px] text-slate-400">Qty: {o.items[0].quantity}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-4 px-5 font-semibold text-slate-800">
-                  {formatCurrency(o.subtotal)}
-                </td>
-                <td className="py-4 px-5 font-bold text-emerald-600">
-                  {formatCurrency(o.netPayout)}
-                </td>
-                <td className="py-4 px-5">
-                  <OrderStatusBadge status={o.status} />
-                </td>
-                <td className="py-4 px-5 text-slate-500">{formatDate(o.createdAt)}</td>
-                <td className="py-4 px-5 text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedOrder(o);
-                      setTrackingInput(o.trackingNumber || "");
-                    }}
-                  >
-                    Manage
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      <PaginateTable
+        data={filteredOrders}
+        columns={columns}
+        keyExtractor={(o) => o.id}
+        defaultPageSize={10}
+        className="flex-1 min-h-0"
+        headerContent={
+          <div className="flex items-center justify-between">
+            {/* Status Tabs */}
+            <div className="border-b border-slate-200/80 pb-2 flex items-center gap-6 overflow-x-auto">
+              {["ALL", "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${activeTab === tab
+                    ? "border-primary text-primary"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                    }`}
+                >
+                  {tab === "ALL" ? "All Orders" : tab.charAt(0) + tab.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+
+            {/* Search Input */}
+            <div className="relative w-full max-w-md">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search order ID or customer name..."
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
+              />
+            </div>
+          </div>
+        }
+      />
 
       {/* Order Fulfillment Modal */}
       {selectedOrder && (

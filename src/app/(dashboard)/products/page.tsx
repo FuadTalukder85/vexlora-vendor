@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { ProductTable } from "./components/ProductTable";
 
 export default function ProductsPage() {
@@ -11,7 +11,9 @@ export default function ProductsPage() {
         </p>
       </div>
 
-      <ProductTable />
+      <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading catalog...</div>}>
+        <ProductTable />
+      </Suspense>
     </div>
   );
 }

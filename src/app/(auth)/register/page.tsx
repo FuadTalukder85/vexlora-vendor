@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, AlertCircle, Store, Mail, Lock, Phone } from "
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useVendorStore } from "@/stores/useVendorStore";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -35,12 +36,11 @@ export default function RegisterPage() {
       });
 
       setIsSubmitted(true);
+      toast.success("Merchant application submitted successfully!");
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg("Failed to submit merchant application.");
-      }
+      const msg = err instanceof Error ? err.message : "Failed to submit merchant application.";
+      setErrorMsg(msg);
+      toast.error(msg);
     }
   };
 

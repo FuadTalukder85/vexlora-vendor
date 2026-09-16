@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface PayoutItem {
   id: string;
@@ -80,15 +81,11 @@ const payoutColumns: ColumnDef<PayoutItem>[] = [
 export default function PayoutsPage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [requestedAmount, setRequestedAmount] = useState(2485.0);
-  const [payoutSuccess, setPayoutSuccess] = useState(false);
 
   const handlePayoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPayoutSuccess(true);
-    setTimeout(() => {
-      setPayoutSuccess(false);
-      setIsRequestModalOpen(false);
-    }, 1200);
+    toast.success(`Payout transfer request for ${formatCurrency(requestedAmount)} submitted successfully!`);
+    setIsRequestModalOpen(false);
   };
 
   return (
@@ -192,12 +189,6 @@ export default function PayoutsPage() {
             <p>Target Bank: Chase Business Checking (**** 4892)</p>
             <p>Processing Time: 1 - 2 Business Days</p>
           </div>
-
-          {payoutSuccess && (
-            <p className="p-2.5 bg-emerald-50 text-emerald-700 font-bold rounded-xl text-center">
-              Payout request submitted successfully!
-            </p>
-          )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" type="button" onClick={() => setIsRequestModalOpen(false)}>

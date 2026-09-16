@@ -7,6 +7,7 @@ import { LogIn, ArrowRight, Clock, AlertCircle, RefreshCw, Mail, Lock } from "lu
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useVendorStore } from "@/stores/useVendorStore";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,19 +28,22 @@ export default function LoginPage() {
 
       if (resProfile?.status === "PENDING") {
         setPendingView(true);
+        toast.info("Your application is currently pending admin review.");
       } else if (resProfile?.status === "APPROVED" || resProfile?.status === undefined) {
+        toast.success("Signed in successfully!");
         router.push("/");
       } else if (resProfile?.status === "REJECTED" || resProfile?.status === "SUSPENDED") {
-        setErrorMsg(`Account status: ${resProfile.status}. Please contact support.`);
+        const msg = `Account status: ${resProfile.status}. Please contact support.`;
+        setErrorMsg(msg);
+        toast.error(msg);
       } else {
+        toast.success("Signed in successfully!");
         router.push("/");
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg("Failed to sign in. Please verify your credentials.");
-      }
+      const msg = err instanceof Error ? err.message : "Failed to sign in. Please verify your credentials.";
+      setErrorMsg(msg);
+      toast.error(msg);
     }
   };
 

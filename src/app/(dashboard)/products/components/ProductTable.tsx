@@ -11,6 +11,7 @@ import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { useVendorProducts, useDeleteProduct } from "@/hooks/useProducts";
+import { toast } from "sonner";
 
 const getStatusBadge = (status: Product["status"]) => {
   switch (status) {
@@ -71,8 +72,10 @@ export const ProductTable: React.FC = () => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       await deleteProductMutation.mutateAsync(id);
+      toast.success("Product deleted successfully");
     } catch (err: any) {
       console.error("Failed to delete product:", err);
+      toast.error(err.response?.data?.message || "Failed to delete product");
     }
   };
 

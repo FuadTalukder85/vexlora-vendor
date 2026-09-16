@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { toast } from "sonner";
 
 const mockOrders: SubOrder[] = [
   {
@@ -108,6 +109,7 @@ export const OrderTable: React.FC = () => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus, trackingNumber: tracking || o.trackingNumber } : o))
     );
+    toast.success(`Sub-order ${orderId} updated to ${newStatus}`);
     setSelectedOrder(null);
   };
 

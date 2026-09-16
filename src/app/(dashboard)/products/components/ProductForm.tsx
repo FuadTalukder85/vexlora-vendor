@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Product } from "@/types/product";
+import { toast } from "sonner";
 import {
   useCategories,
   useUploadProductImages,
@@ -39,6 +40,12 @@ interface ProductFormProps {
   initialData?: Partial<Product>;
   isEdit?: boolean;
   productId?: string;
+}
+
+interface GalleryItem {
+  id: string;
+  previewUrl: string;
+  file?: File;
 }
 
 const SUGGESTED_TAGS = [
@@ -66,11 +73,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const createProductMutation = useCreateProduct();
   const updateProductMutation = useUpdateProduct(productId);
 
+  // Local temporary gallery items (held in memory until form submission)
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(() => {
+    if (initialData?.images && initialData.images.length > 0) {
+      return initialData.images.map((url, i) => ({
+        id: `init-${i}-${url}`,
+        previewUrl: url,
+      }));
+    }
+    return [];
+  });
+
   const [newTag, setNewTag] = useState("");
   const [showVariants, setShowVariants] = useState(
     Boolean(initialData?.variants && initialData.variants.length > 0)
   );
   const [isDragging, setIsDragging] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [draggedImageIdx, setDraggedImageIdx] = useState<number | null>(null);
   const [dragOverImageIdx, setDragOverImageIdx] = useState<number | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -91,8 +110,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       initialData?.discountPrice !== undefined
         ? initialData.discountPrice
         : initialData?.compareAtPrice && initialData.compareAtPrice < (initialData?.basePrice ?? 0)
-        ? initialData.compareAtPrice
-        : null,
+          ? initialData.compareAtPrice
+          : null,
     totalStock: initialData?.totalStock ?? (initialData?.stock ?? 0),
     status: initialData?.status || "ACTIVE",
     images: initialData?.images && initialData.images.length > 0 ? initialData.images : [],
@@ -138,8 +157,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [categories, watchedCategoryId, initialData, setValue]);
 
-  // Handle genuine file uploads via TanStack mutation
-  const handleFilesUpload = async (files: FileList | File[]) => {
+  // Handle local file selection without uploading to Cloudinary immediately
+  const handleFilesSelected = (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
     setSubmitError(null);
 
@@ -147,39 +166,58 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file.type.startsWith("image/")) {
-        setSubmitError(`File "${file.name}" is not a valid image format.`);
+        const err = `File "${file.name}" is not a valid image format.`;
+        setSubmitError(err);
+        toast.error(err);
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        setSubmitError(`File "${file.name}" exceeds the maximum 10MB size limit.`);
+        const err = `File "${file.name}" exceeds the maximum 10MB size limit.`;
+        setSubmitError(err);
+        toast.error(err);
         return;
       }
       validFiles.push(file);
     }
 
-    try {
-      const uploadedUrls = await uploadMutation.mutateAsync(validFiles);
-      if (uploadedUrls.length > 0) {
-        setValue("images", [...watchedImages, ...uploadedUrls], { shouldValidate: true });
-      }
-    } catch (err: any) {
-      console.error("Image upload failed:", err);
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.errorSources?.[0]?.message ||
-        "Failed to upload image file(s). Please try again.";
-      setSubmitError(msg);
-    } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+    // Create temporary local blob preview URLs (kept in memory until product save)
+    const newItems: GalleryItem[] = validFiles.map((file) => ({
+      id: `local-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      previewUrl: URL.createObjectURL(file),
+      file,
+    }));
+
+    const updatedGallery = [...galleryItems, ...newItems];
+    setGalleryItems(updatedGallery);
+    setValue(
+      "images",
+      updatedGallery.map((g) => g.previewUrl),
+      { shouldValidate: true }
+    );
+
+    toast.success(
+      `${validFiles.length} image file${validFiles.length > 1 ? "s" : ""} added to preview`
+    );
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-  // Handle removing image
+  // Handle removing image from local preview
   const handleRemoveImage = (index: number) => {
-    const updated = watchedImages.filter((_, i) => i !== index);
-    setValue("images", updated, { shouldValidate: true });
+    const itemToRemove = galleryItems[index];
+    if (itemToRemove?.previewUrl && itemToRemove.previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(itemToRemove.previewUrl);
+    }
+    const updated = galleryItems.filter((_, i) => i !== index);
+    setGalleryItems(updated);
+    setValue(
+      "images",
+      updated.map((g) => g.previewUrl),
+      { shouldValidate: true }
+    );
+    toast.info("Image removed from gallery");
   };
 
   // Handle image drag-and-drop reordering
@@ -205,11 +243,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    const updated = [...watchedImages];
+    const updated = [...galleryItems];
     const [moved] = updated.splice(draggedImageIdx, 1);
     updated.splice(targetIndex, 0, moved);
 
-    setValue("images", updated, { shouldValidate: true });
+    setGalleryItems(updated);
+    setValue(
+      "images",
+      updated.map((g) => g.previewUrl),
+      { shouldValidate: true }
+    );
     setDraggedImageIdx(null);
     setDragOverImageIdx(null);
   };
@@ -241,8 +284,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const basePriceNum = Number(watchedBasePrice) || 0;
   const discountPriceNum =
     watchedDiscountPrice !== null &&
-    watchedDiscountPrice !== undefined &&
-    !isNaN(Number(watchedDiscountPrice))
+      watchedDiscountPrice !== undefined &&
+      !isNaN(Number(watchedDiscountPrice))
       ? Number(watchedDiscountPrice)
       : null;
 
@@ -262,62 +305,115 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const discountInfo = calculateDiscountInfo();
-  const isSubmitting = createProductMutation.isPending || updateProductMutation.isPending;
-  const isUploadingImages = uploadMutation.isPending;
+  const isSubmitting =
+    isSaving ||
+    uploadMutation.isPending ||
+    createProductMutation.isPending ||
+    updateProductMutation.isPending;
 
   // Form Submission via TanStack Query Mutations
   const onSubmit = async (data: ProductFormValues) => {
     setSubmitError(null);
     setSubmitSuccess(null);
 
-    // Clean up payload matching backend expectations
-    const payload = {
-      title: data.title.trim(),
-      slug: data.slug?.trim() || undefined,
-      description: data.description?.trim() || null,
-      categoryId: data.categoryId || null,
-      brand: data.brand?.trim() || null,
-      basePrice: Number(data.basePrice),
-      discountPrice:
-        data.discountPrice !== null && data.discountPrice !== undefined && !isNaN(data.discountPrice)
-          ? Number(data.discountPrice)
-          : null,
-      totalStock: Number(data.totalStock),
-      status: data.status,
-      images: data.images,
-      tags: data.tags,
-      variants:
-        data.variants && data.variants.length > 0
-          ? data.variants.map((v) => ({
+    if (galleryItems.length === 0) {
+      const err = "At least 1 product image is required.";
+      setSubmitError(err);
+      toast.error(err);
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      // 1. Gather all local Files that have not yet been uploaded to Cloudinary
+      const localFilesToUpload: File[] = [];
+      galleryItems.forEach((item) => {
+        if (item.file) {
+          localFilesToUpload.push(item.file);
+        }
+      });
+
+      let uploadedUrls: string[] = [];
+      if (localFilesToUpload.length > 0) {
+        toast.loading(`Uploading ${localFilesToUpload.length} image(s) to Cloudinary...`, {
+          id: "cloudinary-upload-toast",
+        });
+        uploadedUrls = await uploadMutation.mutateAsync(localFilesToUpload);
+        toast.dismiss("cloudinary-upload-toast");
+      }
+
+      // 2. Map uploaded Cloudinary URLs back into the exact user-ordered positions
+      let uploadCursor = 0;
+      const finalImageUrls: string[] = galleryItems.map((item) => {
+        if (item.file) {
+          return uploadedUrls[uploadCursor++];
+        }
+        return item.previewUrl; // already a persistent Cloudinary / remote URL
+      });
+
+      // 3. Build product payload matching backend expectations
+      const payload = {
+        title: data.title.trim(),
+        slug: data.slug?.trim() || undefined,
+        description: data.description?.trim() || null,
+        categoryId: data.categoryId || null,
+        brand: data.brand?.trim() || null,
+        basePrice: Number(data.basePrice),
+        discountPrice:
+          data.discountPrice !== null && data.discountPrice !== undefined && !isNaN(data.discountPrice)
+            ? Number(data.discountPrice)
+            : null,
+        totalStock: Number(data.totalStock),
+        status: data.status,
+        images: finalImageUrls,
+        tags: data.tags,
+        variants:
+          data.variants && data.variants.length > 0
+            ? data.variants.map((v) => ({
               sku: v.sku.trim(),
               price: Number(v.price),
               stock: Number(v.stock || 0),
               image: v.image?.trim() || null,
               attributes: v.attributes || {},
             }))
-          : undefined,
-    };
+            : undefined,
+      };
 
-    try {
       if (isEdit && productId) {
         await updateProductMutation.mutateAsync(payload);
-        setSubmitSuccess("Product updated successfully!");
+        const successMsg = "Product updated successfully!";
+        setSubmitSuccess(successMsg);
+        toast.success(successMsg);
       } else {
         await createProductMutation.mutateAsync(payload);
-        setSubmitSuccess("Product created and published to catalog!");
+        const successMsg = "Product created and published to catalog!";
+        setSubmitSuccess(successMsg);
+        toast.success(successMsg);
       }
+
+      // Revoke any created local blob object URLs
+      galleryItems.forEach((item) => {
+        if (item.previewUrl && item.previewUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(item.previewUrl);
+        }
+      });
 
       setTimeout(() => {
         router.push("/products");
         router.refresh();
       }, 900);
     } catch (err: any) {
+      toast.dismiss("cloudinary-upload-toast");
       console.error("Product submission failed:", err);
       const message =
         err.response?.data?.message ||
         err.response?.data?.errorSources?.[0]?.message ||
         (isEdit ? "Failed to update product. Please try again." : "Failed to create product. Please try again.");
       setSubmitError(message);
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -344,10 +440,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 watchedStatus === "ACTIVE"
                   ? "success"
                   : watchedStatus === "DRAFT"
-                  ? "warning"
-                  : watchedStatus === "OUT_OF_STOCK"
-                  ? "danger"
-                  : "neutral"
+                    ? "warning"
+                    : watchedStatus === "OUT_OF_STOCK"
+                      ? "danger"
+                      : "neutral"
               }
             >
               {watchedStatus}
@@ -369,7 +465,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             type="submit"
             variant="primary"
             size="sm"
-            isLoading={isSubmitting || isUploadingImages}
+            isLoading={isSubmitting}
             className="shadow-md shadow-primary/20 font-bold"
           >
             <Save className="w-4 h-4 mr-1.5" />
@@ -783,8 +879,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   {watchedStatus === "ACTIVE"
                     ? "Visible and purchasable by all Vexlora buyers."
                     : watchedStatus === "DRAFT"
-                    ? "Hidden from catalog. You can edit and publish anytime."
-                    : "Product page remains visible but purchase is blocked."}
+                      ? "Hidden from catalog. You can edit and publish anytime."
+                      : "Product page remains visible but purchase is blocked."}
                 </p>
               </div>
 
@@ -802,8 +898,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {isLoadingCategories
                       ? "Loading store categories..."
                       : categories.length === 0
-                      ? "No categories found in database"
-                      : "Select a Category"}
+                        ? "No categories found in database"
+                        : "Select a Category"}
                   </option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
@@ -821,7 +917,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           {/* Card 5: Product Media & File Upload Manager */}
           <Card
             title="Product Images & Media"
-            subtitle="Upload image files directly to your product gallery"
+            subtitle="Select image files from your computer (uploaded to Cloudinary on save)"
           >
             <div className="space-y-4">
               {/* Hidden File Input */}
@@ -833,12 +929,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
-                    handleFilesUpload(e.target.files);
+                    handleFilesSelected(e.target.files);
                   }
                 }}
               />
 
-              {/* Drag and Drop File Upload Area */}
+              {/* Drag and Drop File Selection Area */}
               <div
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -852,25 +948,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   e.preventDefault();
                   setIsDragging(false);
                   if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                    handleFilesUpload(e.dataTransfer.files);
+                    handleFilesSelected(e.dataTransfer.files);
                   }
                 }}
                 onClick={() => {
-                  if (!isUploadingImages) {
+                  if (!isSaving) {
                     fileInputRef.current?.click();
                   }
                 }}
-                className={`w-full p-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
-                  isDragging
+                className={`w-full p-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-all ${isDragging
                     ? "border-primary bg-primary/5 scale-[1.01]"
                     : "border-slate-200/90 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-300"
-                } ${isUploadingImages ? "opacity-75 pointer-events-none" : ""}`}
+                  } ${isSaving ? "opacity-75 pointer-events-none" : ""}`}
               >
-                {isUploadingImages ? (
+                {isSaving ? (
                   <div className="flex flex-col items-center gap-2 py-2">
                     <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                    <p className="text-xs font-bold text-primary">Uploading image file(s)...</p>
-                    <p className="text-[11px] text-slate-400">Streaming to Cloudinary...</p>
+                    <p className="text-xs font-bold text-primary">Saving product & uploading media...</p>
+                    <p className="text-[11px] text-slate-400">Streaming to Cloudinary & saving database records...</p>
                   </div>
                 ) : (
                   <>
@@ -878,7 +973,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       <Upload className="w-5 h-5" />
                     </div>
                     <p className="text-xs font-bold text-slate-700">
-                      Click to upload or drag & drop
+                      Click to choose files or drag & drop
                     </p>
                     <p className="text-[11px] text-slate-400 mt-1">
                       PNG, JPG, WebP, AVIF (Max 10MB each)
@@ -904,12 +999,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <p className="text-xs text-rose-500 font-medium">{errors.images.message}</p>
               )}
 
-              {/* Uploaded Gallery Grid */}
-              {watchedImages.length > 0 ? (
+              {/* Local Preview Gallery Grid */}
+              {galleryItems.length > 0 ? (
                 <div className="space-y-2 pt-2 border-t border-slate-100">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      Uploaded Media ({watchedImages.length})
+                      Selected Media ({galleryItems.length})
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium">
                       Drag to reorder • 1st is Cover
@@ -917,26 +1012,25 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </div>
 
                   <div className="grid grid-cols-2 gap-2.5">
-                    {watchedImages.map((imgUrl, idx) => (
+                    {galleryItems.map((item, idx) => (
                       <div
-                        key={`${imgUrl}-${idx}`}
+                        key={item.id}
                         draggable
                         onDragStart={(e) => handleImageDragStart(e, idx)}
                         onDragOver={(e) => handleImageDragOver(e, idx)}
                         onDrop={(e) => handleImageDrop(e, idx)}
                         onDragEnd={handleImageDragEnd}
-                        className={`relative aspect-4/3 rounded-xl border overflow-hidden group bg-slate-100 transition-all cursor-grab active:cursor-grabbing select-none ${
-                          draggedImageIdx === idx
+                        className={`relative aspect-4/3 rounded-xl border overflow-hidden group bg-slate-100 transition-all cursor-grab active:cursor-grabbing select-none ${draggedImageIdx === idx
                             ? "opacity-40 scale-95 border-dashed border-primary"
                             : dragOverImageIdx === idx
-                            ? "ring-2 ring-primary border-primary scale-[1.02]"
-                            : idx === 0
-                            ? "border-primary/80 ring-2 ring-primary/20"
-                            : "border-slate-200 hover:border-slate-300"
-                        }`}
+                              ? "ring-2 ring-primary border-primary scale-[1.02]"
+                              : idx === 0
+                                ? "border-primary/80 ring-2 ring-primary/20"
+                                : "border-slate-200 hover:border-slate-300"
+                          }`}
                       >
                         <ProductImage
-                          src={imgUrl}
+                          src={item.previewUrl}
                           alt={`Product Image ${idx + 1}`}
                           fill
                           className="object-cover pointer-events-none"
@@ -973,9 +1067,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <Card title="Live Catalog Card Preview" subtitle="How this item appears to customers">
             <div className="border border-slate-200/90 rounded-xl p-3 bg-slate-50/50 space-y-3">
               <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-slate-200">
-                {watchedImages[0] ? (
+                {galleryItems[0]?.previewUrl ? (
                   <ProductImage
-                    src={watchedImages[0]}
+                    src={galleryItems[0].previewUrl}
                     alt="Preview"
                     fill
                     className="object-cover"

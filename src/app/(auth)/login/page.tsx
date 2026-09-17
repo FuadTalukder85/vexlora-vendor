@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, ArrowRight, Clock, AlertCircle, RefreshCw, Mail, Lock } from "lucide-react";
@@ -11,12 +11,26 @@ import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, fetchProfile, user, profile, isLoading } = useVendorStore();
+  const { login, fetchProfile, user, profile, isAuthenticated, isInitialChecking, isLoading } = useVendorStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [pendingView, setPendingView] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (!isInitialChecking && isAuthenticated && user && user.role === "VENDOR" && profile?.status !== "PENDING" && user.status !== "BLOCKED") {
+      router.replace("/");
+    }
+  }, [isAuthenticated, isInitialChecking, user, profile, router]);
+
+  if (isInitialChecking || (isAuthenticated && user && user.role === "VENDOR" && profile?.status !== "PENDING" && user.status !== "BLOCKED")) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,14 +45,14 @@ export default function LoginPage() {
         toast.info("Your application is currently pending admin review.");
       } else if (resProfile?.status === "APPROVED" || resProfile?.status === undefined) {
         toast.success("Signed in successfully!");
-        router.push("/");
+        router.replace("/");
       } else if (resProfile?.status === "REJECTED" || resProfile?.status === "SUSPENDED") {
         const msg = `Account status: ${resProfile.status}. Please contact support.`;
         setErrorMsg(msg);
         toast.error(msg);
       } else {
         toast.success("Signed in successfully!");
-        router.push("/");
+        router.replace("/");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to sign in. Please verify your credentials.";
@@ -51,7 +65,7 @@ export default function LoginPage() {
     await fetchProfile();
     const currentProfile = useVendorStore.getState().profile;
     if (currentProfile?.status === "APPROVED") {
-      router.push("/");
+      router.replace("/");
     }
   };
 
@@ -93,7 +107,7 @@ export default function LoginPage() {
               </Button>
               <button
                 onClick={() => setPendingView(false)}
-                className="text-xs text-secondary hover:text-primary font-semibold py-1"
+                className="text-xs text-secondary hover:text-primary font-semibold py-1 cursor-pointer"
               >
                 Sign in with another account
               </button>

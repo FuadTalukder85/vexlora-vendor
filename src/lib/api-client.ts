@@ -14,14 +14,11 @@ export const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
 });
 
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token =
-      localStorage.getItem("vexlora_vendor_token") ||
-      localStorage.getItem("vexlora_token");
+    const token = localStorage.getItem("vexlora_vendor_token");
     if (token) {
       if (typeof config.headers.set === "function") {
         config.headers.set("Authorization", `Bearer ${token}`);
@@ -42,6 +39,12 @@ apiClient.interceptors.response.use(
         !window.location.pathname.startsWith("/login") &&
         !window.location.pathname.startsWith("/register")
       ) {
+        localStorage.removeItem("vexlora_vendor_token");
+        localStorage.removeItem("vexlora_vendor_user");
+        localStorage.removeItem("vexlora_vendor_profile");
+        if (typeof document !== "undefined") {
+          document.cookie = "vexlora_vendor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+        }
         window.location.href = "/login";
       }
     }

@@ -35,11 +35,14 @@ import {
   useCreateProduct,
   useUpdateProduct,
 } from "@/hooks/useProducts";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { ProductFormSkeleton } from "./ProductFormSkeleton";
 
 interface ProductFormProps {
   initialData?: Partial<Product>;
   isEdit?: boolean;
   productId?: string;
+  isLoading?: boolean;
 }
 
 interface GalleryItem {
@@ -63,9 +66,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   isEdit = false,
   productId,
+  isLoading = false,
 }) => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { isInitialChecking } = useVendorStore();
 
   // TanStack Query & Mutations - Pure dynamic data from backend API
   const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
@@ -416,6 +422,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setIsSaving(false);
     }
   };
+
+  const isFormLoading = isLoading || isInitialChecking || isLoadingCategories;
+
+  if (isFormLoading) {
+    return <ProductFormSkeleton />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">

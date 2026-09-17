@@ -1,10 +1,20 @@
+"use client";
+
 import React from "react";
 import { TrendingUp, ShoppingCart, Users, Award } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/StatCard";
 import { formatCurrency } from "@/lib/utils";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { AnalyticsSkeleton } from "./components/AnalyticsSkeleton";
 
 export default function AnalyticsPage() {
+  const { isInitialChecking } = useVendorStore();
+
+  if (isInitialChecking) {
+    return <AnalyticsSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       <div>

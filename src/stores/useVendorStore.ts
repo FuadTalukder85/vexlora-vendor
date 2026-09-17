@@ -75,6 +75,8 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         if (typeof window !== "undefined") {
           localStorage.removeItem("vexlora_vendor_token");
           localStorage.removeItem("vexlora_token");
+          localStorage.removeItem("vexlora_vendor_user");
+          localStorage.removeItem("vexlora_vendor_profile");
           delete apiClient.defaults.headers.common["Authorization"];
         }
         set({
@@ -94,6 +96,13 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         profileData = profileRes.data?.data as VendorProfile;
       } catch {
         // User might not have created a profile yet
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("vexlora_vendor_user", JSON.stringify(userData));
+        if (profileData) {
+          localStorage.setItem("vexlora_vendor_profile", JSON.stringify(profileData));
+        }
       }
 
       set({
@@ -234,6 +243,8 @@ export const useVendorStore = create<VendorState>((set, get) => ({
       if (typeof window !== "undefined") {
         localStorage.removeItem("vexlora_vendor_token");
         localStorage.removeItem("vexlora_token");
+        localStorage.removeItem("vexlora_vendor_user");
+        localStorage.removeItem("vexlora_vendor_profile");
         delete apiClient.defaults.headers.common["Authorization"];
       }
       set({

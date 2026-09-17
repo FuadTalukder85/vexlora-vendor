@@ -1,10 +1,20 @@
+"use client";
+
 import React from "react";
 import { DashboardStats } from "./components/DashboardStats";
 import { RecentOrdersTable } from "./components/RecentOrdersTable";
 import { SalesOverviewChart } from "./components/SalesOverviewChart";
 import { Card } from "@/components/ui/Card";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { DashboardSkeleton } from "./components/DashboardSkeleton";
 
 export default function DashboardPage() {
+  const { profile, isInitialChecking } = useVendorStore();
+
+  if (isInitialChecking) {
+    return <DashboardSkeleton />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
@@ -13,7 +23,9 @@ export default function DashboardPage() {
           <span className="text-[11px] font-bold tracking-widest text-secondary uppercase">
             Store Performance Overview
           </span>
-          <h1 className="text-2xl font-extrabold tracking-tight">Apex Electronics Store</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">
+            {profile?.storeName || "Merchant Store"}
+          </h1>
           <p className="text-xs text-slate-300">
             Welcome back! Here is what is happening with your store today.
           </p>

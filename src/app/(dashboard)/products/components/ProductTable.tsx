@@ -3,14 +3,17 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Edit, Trash2, Plus, Search, RefreshCw, PackageOpen, Loader2 } from "lucide-react";
+import { Edit, Plus, Search, RefreshCw, PackageOpen, CheckCircle2, Archive } from "lucide-react";
 import { Product } from "@/types/product";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { useVendorProducts, useDeleteProduct } from "@/hooks/useProducts";
+import { useVendorProducts, useUpdateProductStatus } from "@/hooks/useProducts";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { ArchiveModal, ArchiveModalMode } from "@/components/ui/ArchiveModal";
+import { ProductsSkeleton } from "./ProductsSkeleton";
 import { toast } from "sonner";
 
 const getStatusBadge = (status: Product["status"]) => {
@@ -39,6 +42,11 @@ export const ProductTable: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState(initialQuery);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
+  // Archive / Draft / Delete Modal state
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalMode, setModalMode] = useState<ArchiveModalMode>("draft");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     const urlQuery = searchParams.get("searchTerm") || searchParams.get("search") || "";
     if (urlQuery) {
@@ -55,10 +63,12 @@ export const ProductTable: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  const { isInitialChecking } = useVendorStore();
+
   // TanStack Query & Mutation
   const {
     data: products = [],
-    isLoading,
+    isLoading: isProductsLoading,
     isFetching,
     refetch,
   } = useVendorProducts({
@@ -66,18 +76,48 @@ export const ProductTable: React.FC = () => {
     status: statusFilter,
   });
 
-  const deleteProductMutation = useDeleteProduct();
+  const isLoading = isInitialChecking || isProductsLoading;
 
-  const handleDeleteProduct = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  const updateProductStatusMutation = useUpdateProductStatus();
+
+  const handleOpenDraftModal = (product: Product) => {
+    setSelectedProduct(product);
+    setModalMode("draft");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenPublishModal = (product: Product) => {
+    setSelectedProduct(product);
+    setModalMode("publish");
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!selectedProduct) return;
+
     try {
-      await deleteProductMutation.mutateAsync(id);
-      toast.success("Product deleted successfully");
+      if (modalMode === "draft") {
+        await updateProductStatusMutation.mutateAsync({
+          id: selectedProduct.id,
+          status: "DRAFT",
+        });
+        toast.success(`"${selectedProduct.title}" moved to draft successfully`);
+      } else if (modalMode === "publish") {
+        await updateProductStatusMutation.mutateAsync({
+          id: selectedProduct.id,
+          status: "ACTIVE",
+        });
+        toast.success(`"${selectedProduct.title}" published successfully`);
+      }
+      setIsModalOpen(false);
+      setSelectedProduct(null);
     } catch (err: any) {
-      console.error("Failed to delete product:", err);
-      toast.error(err.response?.data?.message || "Failed to delete product");
+      console.error("Product action failed:", err);
+      toast.error(err.response?.data?.message || err.message || "Action failed");
     }
   };
+
+  const isActionLoading = updateProductStatusMutation.isPending;
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -177,23 +217,33 @@ export const ProductTable: React.FC = () => {
           >
             <Edit className="w-4 h-4" />
           </Link>
-          <button
-            type="button"
-            disabled={deleteProductMutation.isPending && deleteProductMutation.variables === p.id}
-            onClick={() => handleDeleteProduct(p.id)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50"
-            title="Delete Product"
-          >
-            {deleteProductMutation.isPending && deleteProductMutation.variables === p.id ? (
-              <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-          </button>
+          {p.status === "DRAFT" ? (
+            <button
+              type="button"
+              onClick={() => handleOpenPublishModal(p)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+              title="Publish Product"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleOpenDraftModal(p)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+              title="Move to Draft / Archive"
+            >
+              <Archive className="w-4 h-4" />
+            </button>
+          )}
         </div>
       ),
     },
   ];
+
+  if (isLoading) {
+    return <ProductsSkeleton />;
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
@@ -268,6 +318,33 @@ export const ProductTable: React.FC = () => {
           </div>
         }
       />
+
+      <ArchiveModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          if (!isActionLoading) {
+            setIsModalOpen(false);
+            setSelectedProduct(null);
+          }
+        }}
+        onConfirm={handleConfirmAction}
+        mode={modalMode}
+        isLoading={isActionLoading}
+        item={
+          selectedProduct
+            ? {
+                title: selectedProduct.title,
+                subtitle: `Price: ${formatCurrency(
+                  selectedProduct.discountPrice || selectedProduct.basePrice
+                )} • Stock: ${selectedProduct.totalStock ?? selectedProduct.stock ?? 0} units`,
+                image: selectedProduct.images?.[0],
+                badge: getStatusBadge(selectedProduct.status),
+              }
+            : undefined
+        }
+      />
     </div>
   );
 };
+
+

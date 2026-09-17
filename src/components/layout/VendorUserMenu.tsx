@@ -10,7 +10,13 @@ export const VendorUserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, profile, logout } = useVendorStore();
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2.5 p-1.5">
+        <div className="w-9 h-9 rounded-full bg-slate-200 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

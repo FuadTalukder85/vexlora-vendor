@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency } from "@/lib/utils";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { PayoutsSkeleton } from "./components/PayoutsSkeleton";
 import { toast } from "sonner";
 
 interface PayoutItem {
@@ -79,8 +81,13 @@ const payoutColumns: ColumnDef<PayoutItem>[] = [
 ];
 
 export default function PayoutsPage() {
+  const { isInitialChecking } = useVendorStore();
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [requestedAmount, setRequestedAmount] = useState(2485.0);
+
+  if (isInitialChecking) {
+    return <PayoutsSkeleton />;
+  }
 
   const handlePayoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();

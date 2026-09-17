@@ -3,7 +3,9 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ProductForm } from "../../components/ProductForm";
+import { ProductFormSkeleton } from "../../components/ProductFormSkeleton";
 import { useProduct } from "@/hooks/useProducts";
+import { useVendorStore } from "@/stores/useVendorStore";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -11,28 +13,13 @@ export default function EditProductPage() {
   const params = useParams();
   const router = useRouter();
   const productId = params?.id as string;
+  const { isInitialChecking } = useVendorStore();
 
-  const { data: product, isLoading, error } = useProduct(productId);
+  const { data: product, isLoading: isProductLoading, error } = useProduct(productId);
+  const isLoading = isInitialChecking || isProductLoading;
 
   if (isLoading) {
-    return (
-      <div className="w-full space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="h-8 w-64 bg-slate-200 rounded-lg animate-pulse" />
-          <div className="h-9 w-32 bg-slate-200 rounded-xl animate-pulse" />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8 space-y-6">
-            <div className="h-64 bg-slate-200/70 rounded-2xl animate-pulse" />
-            <div className="h-48 bg-slate-200/70 rounded-2xl animate-pulse" />
-          </div>
-          <div className="lg:col-span-4 space-y-6">
-            <div className="h-40 bg-slate-200/70 rounded-2xl animate-pulse" />
-            <div className="h-72 bg-slate-200/70 rounded-2xl animate-pulse" />
-          </div>
-        </div>
-      </div>
-    );
+    return <ProductFormSkeleton />;
   }
 
   if (error && !product) {

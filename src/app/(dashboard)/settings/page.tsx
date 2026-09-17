@@ -1,23 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, Store, Upload } from "lucide-react";
 import { storeSettingsSchema, StoreSettingsFormValues } from "@/schemas/storeSettingsSchema";
 import { useVendorStore } from "@/stores/useVendorStore";
+import { SettingsSkeleton } from "./components/SettingsSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { profile, setProfile } = useVendorStore();
+  const { profile, setProfile, isInitialChecking } = useVendorStore();
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<StoreSettingsFormValues>({
     resolver: zodResolver(storeSettingsSchema),
@@ -30,6 +32,23 @@ export default function SettingsPage() {
       bannerUrl: profile?.bannerUrl || "",
     },
   });
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        storeName: profile.storeName || "",
+        description: profile.description || "",
+        contactEmail: profile.contactEmail || "",
+        contactPhone: profile.contactPhone || "",
+        logoUrl: profile.logoUrl || "",
+        bannerUrl: profile.bannerUrl || "",
+      });
+    }
+  }, [profile, reset]);
+
+  if (isInitialChecking || !profile) {
+    return <SettingsSkeleton />;
+  }
 
   const onSubmit = async (data: StoreSettingsFormValues) => {
     await new Promise((resolve) => setTimeout(resolve, 600));

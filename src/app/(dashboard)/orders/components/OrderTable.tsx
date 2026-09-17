@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { OrdersSkeleton } from "./OrdersSkeleton";
 import { toast } from "sonner";
 
 const mockOrders: SubOrder[] = [
@@ -183,6 +185,12 @@ export const OrderTable: React.FC = () => {
       ),
     },
   ];
+
+  const { isInitialChecking } = useVendorStore();
+
+  if (isInitialChecking) {
+    return <OrdersSkeleton />;
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0">

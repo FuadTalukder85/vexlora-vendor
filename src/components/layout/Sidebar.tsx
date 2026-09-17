@@ -102,13 +102,13 @@ export const Sidebar: React.FC = () => {
                   "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group relative",
                   isActive
                     ? "bg-primary text-white font-semibold shadow-sm"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                    : "text-primary hover:bg-slate-100 hover:text-primary"
                 )}
               >
                 <Icon
                   className={cn(
                     "w-5 h-5 transition-transform group-hover:scale-110 shrink-0",
-                    isActive ? "text-white" : "text-slate-500 group-hover:text-primary"
+                    isActive ? "text-white" : "text-secondary group-hover:text-primary"
                   )}
                 />
                 {isSidebarOpen && <span>{item.label}</span>}

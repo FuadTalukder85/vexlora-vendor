@@ -58,28 +58,28 @@ export default function DashboardPage() {
                 className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
               >
                 <span>Add New Catalog Item</span>
-                <span className="text-slate-400">→</span>
+                <span className="text-secondary">→</span>
               </a>
               <a
                 href="/orders"
                 className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
               >
                 <span>Process Pending Fulfillment</span>
-                <span className="text-slate-400">→</span>
+                <span className="text-secondary">→</span>
               </a>
               <a
                 href="/payouts"
                 className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
               >
                 <span>Request Net Revenue Payout</span>
-                <span className="text-slate-400">→</span>
+                <span className="text-secondary">→</span>
               </a>
               <a
                 href="/settings"
                 className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
               >
                 <span>Edit Store Banner & Logo</span>
-                <span className="text-slate-400">→</span>
+                <span className="text-secondary">→</span>
               </a>
             </div>
           </Card>

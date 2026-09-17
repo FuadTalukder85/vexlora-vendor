@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Pagination } from "./Pagination";
+export { TableActions, TableActionButton } from "./TableActions";
+export type { TableActionsProps, TableActionButtonProps } from "./TableActions";
 
 export interface ColumnDef<T> {
   header: React.ReactNode;
@@ -107,7 +109,7 @@ export function PaginateTable<T>({
               title
             )}
             {subtitle && typeof subtitle === "string" ? (
-              <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+              <p className="text-xs text-secondary mt-0.5">{subtitle}</p>
             ) : (
               subtitle
             )}
@@ -149,7 +151,7 @@ export function PaginateTable<T>({
                   key={keyExtractor(row, rowIndex)}
                   onClick={() => onRowClick && onRowClick(row)}
                   className={cn(
-                    "hover:bg-slate-50/50 transition-colors",
+                    "hover:bg-slate-100 transition-colors",
                     onRowClick && "cursor-pointer"
                   )}
                 >
@@ -165,7 +167,7 @@ export function PaginateTable<T>({
                       <td
                         key={colIndex}
                         className={cn(
-                          "py-3.5 px-5",
+                          "py-2.5 px-5",
                           alignClasses[col.align || "left"],
                           col.className
                         )}
@@ -178,10 +180,10 @@ export function PaginateTable<T>({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="py-12 px-5 text-center text-slate-400">
+                <td colSpan={columns.length} className="py-12 px-5 text-center text-secondary">
                   <div className="flex flex-col items-center justify-center gap-2">
                     {emptyIcon || <Inbox className="w-8 h-8 text-slate-300" />}
-                    <p className="text-xs font-semibold text-slate-500">{emptyMessage}</p>
+                    <p className="text-xs font-semibold text-secondary">{emptyMessage}</p>
                   </div>
                 </td>
               </tr>

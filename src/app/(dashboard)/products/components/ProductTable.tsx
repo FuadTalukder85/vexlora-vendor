@@ -8,6 +8,7 @@ import { Product } from "@/types/product";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
+import { TableActions, TableActionButton } from "@/components/ui/TableActions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { useVendorProducts, useUpdateProductStatus } from "@/hooks/useProducts";
@@ -122,7 +123,7 @@ export const ProductTable: React.FC = () => {
   const columns: ColumnDef<Product>[] = [
     {
       header: "SL",
-      cell: (_, idx) => <span className="font-semibold text-slate-500 text-xs">{idx + 1}</span>,
+      cell: (_, idx) => <div className="font-semibold text-primary text-xs bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">{idx + 1}</div>,
     },
     {
       header: "Product",
@@ -143,7 +144,7 @@ export const ProductTable: React.FC = () => {
             >
               {p.title}
             </Link>
-            <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+            <p className="text-[10px] text-secondary font-mono mt-0.5">
               ID: {p.id.slice(0, 12)} {p.brand && `• ${p.brand}`}
             </p>
           </div>
@@ -153,7 +154,7 @@ export const ProductTable: React.FC = () => {
     {
       header: "Category",
       cell: (p) => (
-        <span className="font-medium text-slate-600">
+        <span className="font-medium text-primary">
           {typeof p.category === "object" ? (p.category as any)?.name : p.category || "General"}
         </span>
       ),
@@ -163,10 +164,10 @@ export const ProductTable: React.FC = () => {
       cell: (p) => {
         const hasDiscount = p.discountPrice && p.discountPrice > 0;
         return (
-          <div className="font-bold text-slate-800">
+          <div className="font-bold text-primary">
             {hasDiscount ? formatCurrency(p.discountPrice!) : formatCurrency(p.basePrice)}
             {hasDiscount && (
-              <span className="text-[10px] text-slate-400 line-through block font-normal">
+              <span className="text-[10px] text-secondary line-through block font-normal">
                 {formatCurrency(p.basePrice)}
               </span>
             )}
@@ -184,8 +185,8 @@ export const ProductTable: React.FC = () => {
               stockNum === 0
                 ? "font-bold text-rose-600"
                 : stockNum < 15
-                ? "font-semibold text-amber-600"
-                : "font-semibold text-slate-700"
+                  ? "font-semibold text-amber-600"
+                  : "font-semibold text-primary"
             }
           >
             {stockNum} units
@@ -199,44 +200,42 @@ export const ProductTable: React.FC = () => {
     },
     {
       header: "Sales",
-      cell: (p) => <span className="font-medium text-slate-700">{p.salesCount || 0} sold</span>,
+      cell: (p) => <span className="font-medium text-primary">{p.salesCount || 0} sold</span>,
     },
     {
       header: "Created",
-      cell: (p) => <span className="text-slate-500">{formatDate(p.createdAt || new Date().toISOString())}</span>,
+      cell: (p) => <span className="text-primary">{formatDate(p.createdAt || new Date().toISOString())}</span>,
     },
     {
       header: "Actions",
       align: "right",
       cell: (p) => (
-        <div className="flex items-center justify-end gap-1">
-          <Link
+        <TableActions>
+          <TableActionButton
+            as={Link}
             href={`/products/${p.id}/edit`}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors"
             title="Edit Product"
           >
             <Edit className="w-4 h-4" />
-          </Link>
+          </TableActionButton>
           {p.status === "DRAFT" ? (
-            <button
-              type="button"
+            <TableActionButton
               onClick={() => handleOpenPublishModal(p)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+              hoverVariant="emerald"
               title="Publish Product"
             >
               <CheckCircle2 className="w-4 h-4" />
-            </button>
+            </TableActionButton>
           ) : (
-            <button
-              type="button"
+            <TableActionButton
               onClick={() => handleOpenDraftModal(p)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+              hoverVariant="amber"
               title="Move to Draft / Archive"
             >
               <Archive className="w-4 h-4" />
-            </button>
+            </TableActionButton>
           )}
-        </div>
+        </TableActions>
       ),
     },
   ];
@@ -256,8 +255,8 @@ export const ProductTable: React.FC = () => {
           isLoading
             ? "Searching products..."
             : searchTerm || statusFilter !== "ALL"
-            ? `No products found matching "${searchTerm || statusFilter}".`
-            : "No products in your catalog yet. Click Add Product to create your first item."
+              ? `No products found matching "${searchTerm || statusFilter}".`
+              : "No products in your catalog yet. Click Add Product to create your first item."
         }
         emptyIcon={<PackageOpen className="w-10 h-10 text-slate-300 mb-2" />}
         className="flex-1 min-h-0"
@@ -269,17 +268,16 @@ export const ProductTable: React.FC = () => {
                 <button
                   key={tab}
                   onClick={() => setStatusFilter(tab)}
-                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${
-                    statusFilter === tab
-                      ? "border-primary text-primary"
-                      : "border-transparent text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${statusFilter === tab
+                    ? "border-primary text-primary"
+                    : "border-transparent text-secondary hover:text-primary"
+                    }`}
                 >
                   {tab === "ALL"
                     ? "All Products"
                     : tab === "OUT_OF_STOCK"
-                    ? "Out of Stock"
-                    : tab.charAt(0) + tab.slice(1).toLowerCase()}
+                      ? "Out of Stock"
+                      : tab.charAt(0) + tab.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
@@ -287,33 +285,26 @@ export const ProductTable: React.FC = () => {
             {/* Right Controls: Search + Refresh + Add Product */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-72">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search products, brand, SKU..."
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-primary focus:outline-none focus:border-primary transition-all"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-primary hover:bg-slate-50 transition-colors"
+                className="p-2 bg-white border border-slate-200 rounded-xl text-primary hover:text-primary hover:bg-slate-50 transition-colors"
                 title="Refresh Product List"
               >
                 <RefreshCw
                   className={`w-4 h-4 ${isFetching ? "animate-spin text-primary" : ""}`}
                 />
               </button>
-
-              <Link href="/products/new">
-                <Button variant="primary" size="sm" className="whitespace-nowrap">
-                  <Plus className="w-4 h-4 mr-1.5" />
-                  Add Product
-                </Button>
-              </Link>
             </div>
           </div>
         }
@@ -333,13 +324,13 @@ export const ProductTable: React.FC = () => {
         item={
           selectedProduct
             ? {
-                title: selectedProduct.title,
-                subtitle: `Price: ${formatCurrency(
-                  selectedProduct.discountPrice || selectedProduct.basePrice
-                )} • Stock: ${selectedProduct.totalStock ?? selectedProduct.stock ?? 0} units`,
-                image: selectedProduct.images?.[0],
-                badge: getStatusBadge(selectedProduct.status),
-              }
+              title: selectedProduct.title,
+              subtitle: `Price: ${formatCurrency(
+                selectedProduct.discountPrice || selectedProduct.basePrice
+              )} • Stock: ${selectedProduct.totalStock ?? selectedProduct.stock ?? 0} units`,
+              image: selectedProduct.images?.[0],
+              badge: getStatusBadge(selectedProduct.status),
+            }
             : undefined
         }
       />

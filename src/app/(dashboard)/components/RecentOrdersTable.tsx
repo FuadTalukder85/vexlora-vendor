@@ -7,6 +7,7 @@ import { SubOrder } from "@/types/order";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
+import { TableActions, TableActionButton } from "@/components/ui/TableActions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const mockOrders: SubOrder[] = [
@@ -177,11 +178,15 @@ const columns: ColumnDef<SubOrder>[] = [
     header: "Action",
     align: "right",
     cell: () => (
-      <Link href="/orders">
-        <button className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors">
+      <TableActions>
+        <TableActionButton
+          as={Link}
+          href="/orders"
+          title="View Order"
+        >
           <Eye className="w-4 h-4" />
-        </button>
-      </Link>
+        </TableActionButton>
+      </TableActions>
     ),
   },
 ];

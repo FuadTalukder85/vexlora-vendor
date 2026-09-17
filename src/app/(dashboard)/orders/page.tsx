@@ -6,7 +6,7 @@ export default function OrdersPage() {
     <div className="flex-1 flex flex-col min-h-0 h-[calc(100vh-5.5rem)] space-y-4">
       <div className="shrink-0">
         <h1 className="text-2xl font-extrabold text-primary tracking-tight">Vendor Sub-Orders</h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-secondary mt-1">
           Fulfill customer orders, assign tracking numbers, and view net earnings.
         </p>
       </div>

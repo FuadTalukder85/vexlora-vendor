@@ -66,7 +66,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-extrabold text-primary tracking-tight">
             Vexlora Merchant Hub
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-secondary">
             Sign in to manage your storefront, catalog, sub-orders and payouts
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 Status: Pending Approval
               </span>
               <h2 className="text-xl font-extrabold text-primary">Application Under Review</h2>
-              <p className="text-xs text-slate-600 max-w-sm mx-auto">
+              <p className="text-xs text-primary max-w-sm mx-auto">
                 Your merchant application for <strong className="text-primary">{profile?.storeName || "your store"}</strong> is currently being reviewed by our admin verification team.
               </p>
             </div>
@@ -93,7 +93,7 @@ export default function LoginPage() {
               </Button>
               <button
                 onClick={() => setPendingView(false)}
-                className="text-xs text-slate-500 hover:text-primary font-semibold py-1"
+                className="text-xs text-secondary hover:text-primary font-semibold py-1"
               >
                 Sign in with another account
               </button>
@@ -130,7 +130,7 @@ export default function LoginPage() {
               />
 
               <div className="flex items-center justify-between text-xs">
-                <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-600">
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-primary">
                   <input type="checkbox" className="rounded border-slate-300 text-primary" defaultChecked />
                   Remember me
                 </label>
@@ -151,7 +151,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+            <div className="pt-4 border-t border-slate-100 text-center text-xs text-secondary">
               Want to become a seller on Vexlora?{" "}
               <Link href="/register" className="font-bold text-highlight hover:underline inline-flex items-center gap-1">
                 Apply as Merchant <ArrowRight className="w-3 h-3" />

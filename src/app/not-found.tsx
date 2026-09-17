@@ -9,7 +9,7 @@ export default function NotFound() {
         404
       </div>
       <h1 className="text-2xl font-extrabold text-primary">Page Not Found</h1>
-      <p className="text-xs text-slate-500 max-w-sm">
+      <p className="text-xs text-secondary max-w-sm">
         The vendor portal route you are trying to access does not exist or has been moved.
       </p>
       <Link href="/">

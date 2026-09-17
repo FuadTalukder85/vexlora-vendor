@@ -22,7 +22,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{title}</p>
+        <p className="text-xs font-semibold text-secondary uppercase tracking-wider">{title}</p>
         <h4 className="text-2xl font-bold text-primary mt-1 tracking-tight">{value}</h4>
         {change && (
           <p className="text-xs font-medium mt-1.5 flex items-center gap-1">
@@ -34,7 +34,7 @@ export const StatCard: React.FC<StatCardProps> = ({
             >
               {isPositive ? `+${change}` : `-${change}`}
             </span>
-            <span className="text-slate-400">vs last month</span>
+            <span className="text-secondary">vs last month</span>
           </p>
         )}
       </div>

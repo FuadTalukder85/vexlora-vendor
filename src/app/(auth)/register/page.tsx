@@ -49,7 +49,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-slate-200/80 p-8 space-y-6">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-secondary hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Sign In
         </Link>
@@ -60,10 +60,10 @@ export default function RegisterPage() {
               <CheckCircle2 className="w-10 h-10" />
             </div>
             <h2 className="text-2xl font-extrabold text-primary">Application Submitted!</h2>
-            <p className="text-xs text-slate-600 max-w-sm mx-auto">
+            <p className="text-xs text-primary max-w-sm mx-auto">
               Thank you for applying to sell on Vexlora. Your merchant account has been registered and is currently pending administrator verification.
             </p>
-            <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl text-left text-xs text-slate-600 space-y-1 max-w-sm mx-auto">
+            <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl text-left text-xs text-primary space-y-1 max-w-sm mx-auto">
               <p><strong className="text-primary">Store Name:</strong> {storeName}</p>
               <p><strong className="text-primary">Business Email:</strong> {email}</p>
               <p><strong className="text-primary">Status:</strong> <span className="text-amber-600 font-bold">Pending Review</span></p>
@@ -78,7 +78,7 @@ export default function RegisterPage() {
               <h1 className="text-2xl font-extrabold text-primary tracking-tight">
                 Become a Vexlora Merchant
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-secondary">
                 Join thousands of brands selling products to millions of active shoppers.
               </p>
             </div>
@@ -131,7 +131,7 @@ export default function RegisterPage() {
               />
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-primary mb-1">
                   Store Overview / Description (Optional)
                 </label>
                 <textarea
@@ -139,11 +139,11 @@ export default function RegisterPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Brief summary of your product offerings..."
-                  className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-slate-300 text-slate-800"
+                  className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-slate-300 text-primary"
                 />
               </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs text-slate-600 space-y-1">
+              <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs text-primary space-y-1">
                 <p className="font-bold text-primary">Platform Terms & Commission:</p>
                 <p>Standard seller commission tier is 8.5% per delivered sub-order. No monthly listing fees.</p>
               </div>

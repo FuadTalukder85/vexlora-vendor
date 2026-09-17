@@ -42,6 +42,8 @@ export const ProductTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [debouncedSearch, setDebouncedSearch] = useState(initialQuery);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // Archive / Draft / Delete Modal state
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -53,6 +55,7 @@ export const ProductTable: React.FC = () => {
     if (urlQuery) {
       setSearchTerm(urlQuery);
       setDebouncedSearch(urlQuery);
+      setPage(1);
     }
   }, [searchParams]);
 
@@ -60,26 +63,37 @@ export const ProductTable: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
+      setPage(1);
     }, 250);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
   const { isInitialChecking } = useVendorStore();
 
-  // TanStack Query & Mutation
+  // TanStack Query & Mutation with server pagination & prefetching
   const {
-    data: products = [],
+    data,
     isLoading: isProductsLoading,
     isFetching,
     refetch,
   } = useVendorProducts({
     searchTerm: debouncedSearch,
     status: statusFilter,
+    page,
+    limit: pageSize,
   });
+
+  const products = data?.products || [];
+  const meta = data?.meta;
 
   const isLoading = isInitialChecking || isProductsLoading;
 
   const updateProductStatusMutation = useUpdateProductStatus();
+
+  const handleStatusTabChange = (tab: string) => {
+    setStatusFilter(tab);
+    setPage(1);
+  };
 
   const handleOpenDraftModal = (product: Product) => {
     setSelectedProduct(product);
@@ -102,13 +116,13 @@ export const ProductTable: React.FC = () => {
           id: selectedProduct.id,
           status: "DRAFT",
         });
-        toast.success(`"${selectedProduct.title}" moved to draft successfully`);
+        toast.success(`"${selectedProduct.title}" moved to draft.`);
       } else if (modalMode === "publish") {
         await updateProductStatusMutation.mutateAsync({
           id: selectedProduct.id,
           status: "ACTIVE",
         });
-        toast.success(`"${selectedProduct.title}" published successfully`);
+        toast.success(`"${selectedProduct.title}" has been published.`);
       }
       setIsModalOpen(false);
       setSelectedProduct(null);
@@ -123,7 +137,11 @@ export const ProductTable: React.FC = () => {
   const columns: ColumnDef<Product>[] = [
     {
       header: "SL",
-      cell: (_, idx) => <div className="font-semibold text-primary text-xs bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">{idx + 1}</div>,
+      cell: (_, idx) => (
+        <div className="font-semibold text-primary text-xs bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">
+          {(page - 1) * pageSize + idx + 1}
+        </div>
+      ),
     },
     {
       header: "Product",
@@ -178,18 +196,17 @@ export const ProductTable: React.FC = () => {
     {
       header: "Stock",
       cell: (p) => {
-        const stockNum = p.totalStock ?? p.stock ?? 0;
+        const stock = p.totalStock ?? p.stock ?? 0;
         return (
           <span
-            className={
-              stockNum === 0
-                ? "font-bold text-rose-600"
-                : stockNum < 15
-                  ? "font-semibold text-amber-600"
-                  : "font-semibold text-primary"
-            }
+            className={`font-semibold ${stock === 0
+              ? "text-rose-600 font-bold"
+              : stock < 15
+                ? "text-amber-600"
+                : "text-primary"
+              }`}
           >
-            {stockNum} units
+            {stock} in stock
           </span>
         );
       },
@@ -240,7 +257,7 @@ export const ProductTable: React.FC = () => {
     },
   ];
 
-  if (isLoading) {
+  if (isLoading && products.length === 0) {
     return <ProductsSkeleton />;
   }
 
@@ -250,7 +267,17 @@ export const ProductTable: React.FC = () => {
         data={products}
         columns={columns}
         keyExtractor={(item) => item.id}
-        defaultPageSize={10}
+        page={page}
+        pageSize={pageSize}
+        totalItems={meta?.total ?? products.length}
+        totalPages={meta?.totalPages ?? 1}
+        onPageChange={(newPage) => setPage(newPage)}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setPage(1);
+        }}
+        pageSizeOptions={[10, 20, 50, 100]}
+        defaultPageSize={20}
         emptyMessage={
           isLoading
             ? "Searching products..."
@@ -267,7 +294,7 @@ export const ProductTable: React.FC = () => {
               {["ALL", "ACTIVE", "DRAFT", "OUT_OF_STOCK", "REJECTED"].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setStatusFilter(tab)}
+                  onClick={() => handleStatusTabChange(tab)}
                   className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${statusFilter === tab
                     ? "border-primary text-primary"
                     : "border-transparent text-secondary hover:text-primary"
@@ -337,5 +364,3 @@ export const ProductTable: React.FC = () => {
     </div>
   );
 };
-
-

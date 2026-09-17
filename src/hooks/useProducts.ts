@@ -123,3 +123,18 @@ export const useDeleteProduct = () => {
   });
 };
 
+export const useUpdateProductStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: Product["status"] }) => {
+      const res = await apiClient.patch(`/products/${id}/status`, { status });
+      return res.data?.data || res.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-products"] });
+      queryClient.invalidateQueries({ queryKey: ["product", variables.id] });
+    },
+  });
+};
+
+

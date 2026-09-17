@@ -59,20 +59,30 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Store Profile Quick Card */}
-        {isSidebarOpen && profile && (
-          <div className="mx-4 my-4 p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-              <Store className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-primary truncate">{profile.storeName}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Badge variant="success" className="text-[9px] px-1.5 py-0">
-                  {profile.status}
-                </Badge>
+        {isSidebarOpen && (
+          profile ? (
+            <div className="mx-4 my-4 p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <Store className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-primary truncate">{profile.storeName}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Badge variant="success" className="text-[9px] px-1.5 py-0">
+                    {profile.status}
+                  </Badge>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="mx-4 my-4 p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center gap-3 animate-pulse">
+              <div className="w-9 h-9 rounded-lg bg-slate-200 shrink-0" />
+              <div className="flex-1 space-y-1.5 min-w-0">
+                <div className="h-3.5 bg-slate-200 rounded w-24" />
+                <div className="h-3 bg-slate-200 rounded w-14" />
+              </div>
+            </div>
+          )
         )}
 
         {/* Navigation Menu */}

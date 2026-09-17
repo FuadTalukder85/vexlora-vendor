@@ -24,27 +24,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [fetchProfile]);
 
   useEffect(() => {
-    if (
-      !isInitialChecking &&
-      (!isAuthenticated ||
-        (user &&
-          user.role !== "VENDOR" &&
-          user.role !== "ADMIN" &&
-          user.role !== "SUPER_ADMIN"))
-    ) {
-      router.push("/login");
+    if (!isInitialChecking) {
+      const isAuthorized =
+        isAuthenticated &&
+        user &&
+        user.role === "VENDOR" &&
+        user.status !== "BLOCKED";
+
+      if (!isAuthorized) {
+        router.replace("/login");
+      }
     }
   }, [isInitialChecking, isAuthenticated, user, router]);
 
-  if (isInitialChecking) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-bold text-slate-500">Verifying Merchant Session...</p>
-        </div>
-      </div>
-    );
+  // Prevent any protected route UI from rendering before auth is verified
+  if (
+    isInitialChecking ||
+    !isAuthenticated ||
+    !user ||
+    user.role !== "VENDOR" ||
+    user.status === "BLOCKED"
+  ) {
+    return null;
   }
 
   return (

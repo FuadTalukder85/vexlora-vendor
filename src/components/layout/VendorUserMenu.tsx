@@ -10,7 +10,13 @@ export const VendorUserMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, profile, logout } = useVendorStore();
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2.5 p-1.5">
+        <div className="w-9 h-9 rounded-full bg-slate-200 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -29,9 +35,9 @@ export const VendorUserMenu: React.FC = () => {
         </div>
         <div className="hidden sm:flex flex-col text-left">
           <span className="text-xs font-bold text-primary leading-tight">{user.name}</span>
-          <span className="text-[10px] text-slate-500">{user.email}</span>
+          <span className="text-[10px] text-secondary">{user.email}</span>
         </div>
-        <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+        <ChevronDown className="w-4 h-4 text-secondary hidden sm:block" />
       </button>
 
       {isOpen && (
@@ -40,25 +46,25 @@ export const VendorUserMenu: React.FC = () => {
           <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="px-4 py-2 border-b border-slate-100">
               <p className="text-xs font-bold text-primary">{user.name}</p>
-              <p className="text-[11px] text-slate-500 truncate">{profile?.storeName}</p>
+              <p className="text-[11px] text-secondary truncate">{profile?.storeName}</p>
             </div>
 
             <div className="py-1">
               <Link
                 href="/settings"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
+                className="flex items-center gap-2.5 px-4 py-2 text-xs text-primary hover:bg-slate-50 font-medium"
               >
-                <Settings className="w-4 h-4 text-slate-400" />
+                <Settings className="w-4 h-4 text-secondary" />
                 Store Settings
               </Link>
               <a
                 href="http://localhost:3000"
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
+                className="flex items-center gap-2.5 px-4 py-2 text-xs text-primary hover:bg-slate-50 font-medium"
               >
-                <ExternalLink className="w-4 h-4 text-slate-400" />
+                <ExternalLink className="w-4 h-4 text-secondary" />
                 View Main Marketplace
               </a>
             </div>

@@ -35,11 +35,14 @@ import {
   useCreateProduct,
   useUpdateProduct,
 } from "@/hooks/useProducts";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { ProductFormSkeleton } from "./ProductFormSkeleton";
 
 interface ProductFormProps {
   initialData?: Partial<Product>;
   isEdit?: boolean;
   productId?: string;
+  isLoading?: boolean;
 }
 
 interface GalleryItem {
@@ -63,9 +66,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   isEdit = false,
   productId,
+  isLoading = false,
 }) => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { isInitialChecking } = useVendorStore();
 
   // TanStack Query & Mutations - Pure dynamic data from backend API
   const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
@@ -417,6 +423,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   };
 
+  const isFormLoading = isLoading || isInitialChecking || isLoadingCategories;
+
+  if (isFormLoading) {
+    return <ProductFormSkeleton />;
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
       {/* Top Sticky/Floating Action Header */}
@@ -425,7 +437,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <button
             type="button"
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Catalog
@@ -434,7 +446,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <div className="hidden sm:block h-5 w-px bg-slate-200" />
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500">Status:</span>
+            <span className="text-xs font-bold text-secondary">Status:</span>
             <Badge
               variant={
                 watchedStatus === "ACTIVE"
@@ -535,7 +547,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <label className="text-xs font-semibold text-primary tracking-wide">
                     Product Description
                   </label>
-                  <span className="text-[11px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-secondary font-mono">
                     Markdown / Text supported
                   </span>
                 </div>
@@ -592,13 +604,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {watchedTags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 group hover:bg-slate-200 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-semibold text-primary group hover:bg-slate-200 transition-colors"
                       >
                         #{tag}
                         <button
                           type="button"
                           onClick={() => handleRemoveTag(tag)}
-                          className="text-slate-400 hover:text-rose-500 transition-colors font-bold ml-0.5"
+                          className="text-secondary hover:text-rose-500 transition-colors font-bold ml-0.5"
                         >
                           ×
                         </button>
@@ -606,12 +618,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-slate-400 italic">No tags added yet.</p>
+                  <p className="text-[11px] text-secondary italic">No tags added yet.</p>
                 )}
 
                 {/* Quick Tag Suggestions */}
                 <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <span className="text-[10px] text-secondary font-bold uppercase tracking-wider">
                     Suggested:
                   </span>
                   {SUGGESTED_TAGS.filter((t) => !watchedTags.includes(t)).map((sug) => (
@@ -619,7 +631,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       key={sug}
                       type="button"
                       onClick={() => handleAddTag(sug)}
-                      className="text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-primary/10 hover:text-primary px-2 py-0.5 rounded-md transition-all cursor-pointer"
+                      className="text-[10px] font-semibold text-primary bg-slate-100 hover:bg-primary/10 hover:text-primary px-2 py-0.5 rounded-md transition-all cursor-pointer"
                     >
                       +{sug}
                     </button>
@@ -729,7 +741,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <div className="space-y-4">
                 {variantFields.length === 0 ? (
                   <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    <p className="text-xs text-slate-500 mb-2">No variants created yet.</p>
+                    <p className="text-xs text-secondary mb-2">No variants created yet.</p>
                     <Button
                       type="button"
                       variant="outline"
@@ -756,7 +768,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
                       >
                         <div className="sm:col-span-3">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">
+                          <label className="text-[10px] font-bold text-secondary uppercase">
                             SKU *
                           </label>
                           <input
@@ -767,7 +779,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         </div>
 
                         <div className="sm:col-span-3">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">
+                          <label className="text-[10px] font-bold text-secondary uppercase">
                             Option / Spec
                           </label>
                           <input
@@ -782,7 +794,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">
+                          <label className="text-[10px] font-bold text-secondary uppercase">
                             Price ($) *
                           </label>
                           <input
@@ -797,7 +809,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase">
+                          <label className="text-[10px] font-bold text-secondary uppercase">
                             Stock *
                           </label>
                           <input
@@ -814,7 +826,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                           <button
                             type="button"
                             onClick={() => removeVariant(index)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-secondary hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Remove Variant"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -845,7 +857,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 )}
               </div>
             ) : (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-secondary">
                 Single item product without variations. Click{" "}
                 <span className="font-semibold text-primary">Manage Variants</span> if this product
                 has multiple colors, sizes, or models.
@@ -875,7 +887,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <option value="DRAFT">Draft (Saved, Not Public)</option>
                   <option value="OUT_OF_STOCK">Out of Stock</option>
                 </select>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-secondary">
                   {watchedStatus === "ACTIVE"
                     ? "Visible and purchasable by all Vexlora buyers."
                     : watchedStatus === "DRAFT"
@@ -957,25 +969,25 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   }
                 }}
                 className={`w-full p-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-all ${isDragging
-                    ? "border-primary bg-primary/5 scale-[1.01]"
-                    : "border-slate-200/90 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-300"
+                  ? "border-primary bg-primary/5 scale-[1.01]"
+                  : "border-slate-200/90 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-300"
                   } ${isSaving ? "opacity-75 pointer-events-none" : ""}`}
               >
                 {isSaving ? (
                   <div className="flex flex-col items-center gap-2 py-2">
                     <Loader2 className="w-8 h-8 text-primary animate-spin" />
                     <p className="text-xs font-bold text-primary">Saving product & uploading media...</p>
-                    <p className="text-[11px] text-slate-400">Streaming to Cloudinary & saving database records...</p>
+                    <p className="text-[11px] text-secondary">Streaming to Cloudinary & saving database records...</p>
                   </div>
                 ) : (
                   <>
                     <div className="w-12 h-12 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-center mb-2.5 text-primary">
                       <Upload className="w-5 h-5" />
                     </div>
-                    <p className="text-xs font-bold text-slate-700">
+                    <p className="text-xs font-bold text-primary">
                       Click to choose files or drag & drop
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-[11px] text-secondary mt-1">
                       PNG, JPG, WebP, AVIF (Max 10MB each)
                     </p>
                     <Button
@@ -1003,10 +1015,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               {galleryItems.length > 0 ? (
                 <div className="space-y-2 pt-2 border-t border-slate-100">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-secondary uppercase tracking-wider">
                       Selected Media ({galleryItems.length})
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium">
+                    <span className="text-[10px] text-secondary font-medium">
                       Drag to reorder • 1st is Cover
                     </span>
                   </div>
@@ -1021,12 +1033,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         onDrop={(e) => handleImageDrop(e, idx)}
                         onDragEnd={handleImageDragEnd}
                         className={`relative aspect-4/3 rounded-xl border overflow-hidden group bg-slate-100 transition-all cursor-grab active:cursor-grabbing select-none ${draggedImageIdx === idx
-                            ? "opacity-40 scale-95 border-dashed border-primary"
-                            : dragOverImageIdx === idx
-                              ? "ring-2 ring-primary border-primary scale-[1.02]"
-                              : idx === 0
-                                ? "border-primary/80 ring-2 ring-primary/20"
-                                : "border-slate-200 hover:border-slate-300"
+                          ? "opacity-40 scale-95 border-dashed border-primary"
+                          : dragOverImageIdx === idx
+                            ? "ring-2 ring-primary border-primary scale-[1.02]"
+                            : idx === 0
+                              ? "border-primary/80 ring-2 ring-primary/20"
+                              : "border-slate-200 hover:border-slate-300"
                           }`}
                       >
                         <ProductImage
@@ -1043,7 +1055,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                               e.stopPropagation();
                               handleRemoveImage(idx);
                             }}
-                            className="p-2 bg-white text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-xl shadow-md transition-all hover:scale-110 pointer-events-auto cursor-pointer"
+                            className="p-2 bg-white text-primary hover:text-rose-600 hover:bg-rose-50 rounded-xl shadow-md transition-all hover:scale-110 pointer-events-auto cursor-pointer"
                             title="Delete Image"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1075,9 +1087,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 bg-slate-100">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-secondary gap-1 bg-slate-100">
                     <ImageIcon className="w-6 h-6 text-slate-300" />
-                    <span className="text-[10px] text-slate-400 font-medium">No media uploaded</span>
+                    <span className="text-[10px] text-secondary font-medium">No media uploaded</span>
                   </div>
                 )}
                 {discountInfo && (
@@ -1088,7 +1100,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">
                   {watchedTags[0] || "General"}
                 </p>
                 <h5 className="text-xs font-bold text-primary truncate mt-0.5">
@@ -1102,7 +1114,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     ).toFixed(2)}
                   </span>
                   {discountPriceNum && discountPriceNum > 0 && basePriceNum > 0 && (
-                    <span className="text-xs text-slate-400 line-through">
+                    <span className="text-xs text-secondary line-through">
                       ${basePriceNum.toFixed(2)}
                     </span>
                   )}

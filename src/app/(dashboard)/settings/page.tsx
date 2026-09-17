@@ -1,23 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, Store, Upload } from "lucide-react";
 import { storeSettingsSchema, StoreSettingsFormValues } from "@/schemas/storeSettingsSchema";
 import { useVendorStore } from "@/stores/useVendorStore";
+import { SettingsSkeleton } from "./components/SettingsSkeleton";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { profile, setProfile } = useVendorStore();
+  const { profile, setProfile, isInitialChecking } = useVendorStore();
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<StoreSettingsFormValues>({
     resolver: zodResolver(storeSettingsSchema),
@@ -30,6 +32,23 @@ export default function SettingsPage() {
       bannerUrl: profile?.bannerUrl || "",
     },
   });
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        storeName: profile.storeName || "",
+        description: profile.description || "",
+        contactEmail: profile.contactEmail || "",
+        contactPhone: profile.contactPhone || "",
+        logoUrl: profile.logoUrl || "",
+        bannerUrl: profile.bannerUrl || "",
+      });
+    }
+  }, [profile, reset]);
+
+  if (isInitialChecking || !profile) {
+    return <SettingsSkeleton />;
+  }
 
   const onSubmit = async (data: StoreSettingsFormValues) => {
     await new Promise((resolve) => setTimeout(resolve, 600));
@@ -46,7 +65,7 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-2xl font-extrabold text-primary tracking-tight">Store Profile Settings</h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-secondary mt-1">
           Customize your storefront appearance, logo, banner, and customer contact information.
         </p>
       </div>
@@ -60,7 +79,7 @@ export default function SettingsPage() {
               {profile?.bannerUrl ? (
                 <Image src={profile.bannerUrl} alt="Store Banner" fill className="object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                <div className="w-full h-full flex items-center justify-center text-secondary text-xs">
                   No Banner Image Set
                 </div>
               )}
@@ -93,12 +112,12 @@ export default function SettingsPage() {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 tracking-wide">
+            <label className="text-xs font-semibold text-primary tracking-wide">
               Store Description *
             </label>
             <textarea
               rows={4}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-primary transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-primary focus:outline-none focus:border-primary transition-all resize-none"
               {...register("description")}
             />
             {errors.description && (

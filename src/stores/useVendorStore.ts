@@ -49,33 +49,49 @@ export const useVendorStore = create<VendorState>((set, get) => ({
   fetchProfile: async () => {
     set({ isLoading: true });
     try {
+      let token: string | null = null;
       if (typeof window !== "undefined") {
-        const token =
-          localStorage.getItem("vexlora_vendor_token") ||
-          localStorage.getItem("vexlora_token");
+        token = localStorage.getItem("vexlora_vendor_token");
         if (token) {
           apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         }
       }
 
-      const userRes = await apiClient.get("/users/me");
+      // Fast check: if no vendor token exists in localStorage or document.cookie, fail fast
+      const hasVendorCookie =
+        typeof document !== "undefined" &&
+        document.cookie.includes("vexlora_vendor_token");
+
+      if (!token && !hasVendorCookie) {
+        set({
+          user: null,
+          profile: null,
+          isAuthenticated: false,
+          isInitialChecking: false,
+          isLoading: false,
+        });
+        return;
+      }
+
+      const userRes = await apiClient.get("/users/me", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const userData = userRes.data?.data as VendorUser;
 
       if (!userData) {
         throw new Error("No user found");
       }
 
-      // Check role: Customers are strictly prohibited from vendor portal
-      const isVendorOrAdmin =
-        userData.role === "VENDOR" ||
-        userData.role === "ADMIN" ||
-        userData.role === "SUPER_ADMIN";
-
-      if (!isVendorOrAdmin) {
+      // Strict Vendor Role Enforcement: VENDOR ONLY. Admins and Customers are not allowed.
+      if (userData.role !== "VENDOR") {
         if (typeof window !== "undefined") {
           localStorage.removeItem("vexlora_vendor_token");
-          localStorage.removeItem("vexlora_token");
+          localStorage.removeItem("vexlora_vendor_user");
+          localStorage.removeItem("vexlora_vendor_profile");
           delete apiClient.defaults.headers.common["Authorization"];
+        }
+        if (typeof document !== "undefined") {
+          document.cookie = "vexlora_vendor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
         }
         set({
           user: null,
@@ -90,10 +106,19 @@ export const useVendorStore = create<VendorState>((set, get) => ({
 
       let profileData: VendorProfile | null = null;
       try {
-        const profileRes = await apiClient.get("/vendor-profiles/me");
+        const profileRes = await apiClient.get("/vendor-profiles/me", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         profileData = profileRes.data?.data as VendorProfile;
       } catch {
-        // User might not have created a profile yet
+        // Profile may not exist yet
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("vexlora_vendor_user", JSON.stringify(userData));
+        if (profileData) {
+          localStorage.setItem("vexlora_vendor_profile", JSON.stringify(profileData));
+        }
       }
 
       set({
@@ -105,6 +130,16 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         error: null,
       });
     } catch {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("vexlora_vendor_token");
+        localStorage.removeItem("vexlora_vendor_user");
+        localStorage.removeItem("vexlora_vendor_profile");
+      }
+      if (typeof document !== "undefined") {
+        document.cookie = "vexlora_vendor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+      }
+      delete apiClient.defaults.headers.common["Authorization"];
+
       set({
         user: null,
         profile: null,
@@ -120,15 +155,18 @@ export const useVendorStore = create<VendorState>((set, get) => ({
     try {
       const res = await axios.post(
         `${AUTH_BASE_URL}/sign-in/email`,
-        { email, password },
-        { withCredentials: true }
+        { email, password }
       );
 
       const token = res.data?.token || res.data?.session?.token || res.data?.sessionToken;
       if (token && typeof window !== "undefined") {
         localStorage.setItem("vexlora_vendor_token", token);
-        localStorage.setItem("vexlora_token", token);
         apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      }
+
+      if (typeof document !== "undefined") {
+        const cookieVal = token || "authenticated";
+        document.cookie = `vexlora_vendor_token=${cookieVal}; path=/; max-age=86400; SameSite=Lax`;
       }
 
       await get().fetchProfile();
@@ -142,16 +180,11 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         );
       }
 
-      // Role check enforcement
-      const isVendorOrAdmin =
-        user.role === "VENDOR" ||
-        user.role === "ADMIN" ||
-        user.role === "SUPER_ADMIN";
-
-      if (!isVendorOrAdmin) {
+      // Strict role check: ONLY VENDOR
+      if (user.role !== "VENDOR") {
         await get().logout();
         throw new Error(
-          "Access denied. Only registered vendor accounts can access the Merchant Portal. Customer accounts are not permitted."
+          "Access denied. Only registered vendor accounts can access the Merchant Portal."
         );
       }
 
@@ -173,7 +206,6 @@ export const useVendorStore = create<VendorState>((set, get) => ({
   registerVendor: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      // 1. Register User with VENDOR role
       const signUpRes = await axios.post(
         `${AUTH_BASE_URL}/sign-up/email`,
         {
@@ -182,18 +214,20 @@ export const useVendorStore = create<VendorState>((set, get) => ({
           password: payload.password,
           phone: payload.phone,
           role: "VENDOR",
-        },
-        { withCredentials: true }
+        }
       );
 
       const token = signUpRes.data?.token || signUpRes.data?.session?.token || signUpRes.data?.sessionToken;
       if (token && typeof window !== "undefined") {
         localStorage.setItem("vexlora_vendor_token", token);
-        localStorage.setItem("vexlora_token", token);
         apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       }
 
-      // 2. Submit Vendor Profile Application
+      if (typeof document !== "undefined") {
+        const cookieVal = token || "authenticated";
+        document.cookie = `vexlora_vendor_token=${cookieVal}; path=/; max-age=86400; SameSite=Lax`;
+      }
+
       const slug = payload.storeName
         .toLowerCase()
         .trim()
@@ -207,6 +241,8 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         bankAccountName: payload.bankAccountName || undefined,
         bankAccountNumber: payload.bankAccountNumber || undefined,
         bankName: payload.bankName || undefined,
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       await get().fetchProfile();
@@ -227,19 +263,21 @@ export const useVendorStore = create<VendorState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      await axios.post(`${AUTH_BASE_URL}/sign-out`, {}, { withCredentials: true });
-    } catch {
-      // Ignore network errors on logout
-    } finally {
       if (typeof window !== "undefined") {
         localStorage.removeItem("vexlora_vendor_token");
-        localStorage.removeItem("vexlora_token");
-        delete apiClient.defaults.headers.common["Authorization"];
+        localStorage.removeItem("vexlora_vendor_user");
+        localStorage.removeItem("vexlora_vendor_profile");
       }
+      if (typeof document !== "undefined") {
+        document.cookie = "vexlora_vendor_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+      }
+      delete apiClient.defaults.headers.common["Authorization"];
+    } finally {
       set({
         user: null,
         profile: null,
         isAuthenticated: false,
+        isInitialChecking: false,
         isLoading: false,
         error: null,
       });

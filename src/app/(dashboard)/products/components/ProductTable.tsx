@@ -3,14 +3,18 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Edit, Trash2, Plus, Search, RefreshCw, PackageOpen, Loader2 } from "lucide-react";
+import { Edit, Plus, Search, RefreshCw, PackageOpen, CheckCircle2, Archive } from "lucide-react";
 import { Product } from "@/types/product";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
+import { TableActions, TableActionButton } from "@/components/ui/TableActions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { useVendorProducts, useDeleteProduct } from "@/hooks/useProducts";
+import { useVendorProducts, useUpdateProductStatus } from "@/hooks/useProducts";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { ArchiveModal, ArchiveModalMode } from "@/components/ui/ArchiveModal";
+import { ProductsSkeleton } from "./ProductsSkeleton";
 import { toast } from "sonner";
 
 const getStatusBadge = (status: Product["status"]) => {
@@ -38,12 +42,20 @@ export const ProductTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [debouncedSearch, setDebouncedSearch] = useState(initialQuery);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // Archive / Draft / Delete Modal state
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalMode, setModalMode] = useState<ArchiveModalMode>("draft");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const urlQuery = searchParams.get("searchTerm") || searchParams.get("search") || "";
     if (urlQuery) {
       setSearchTerm(urlQuery);
       setDebouncedSearch(urlQuery);
+      setPage(1);
     }
   }, [searchParams]);
 
@@ -51,38 +63,85 @@ export const ProductTable: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
+      setPage(1);
     }, 250);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // TanStack Query & Mutation
+  const { isInitialChecking } = useVendorStore();
+
+  // TanStack Query & Mutation with server pagination & prefetching
   const {
-    data: products = [],
-    isLoading,
+    data,
+    isLoading: isProductsLoading,
     isFetching,
     refetch,
   } = useVendorProducts({
     searchTerm: debouncedSearch,
     status: statusFilter,
+    page,
+    limit: pageSize,
   });
 
-  const deleteProductMutation = useDeleteProduct();
+  const products = data?.products || [];
+  const meta = data?.meta;
 
-  const handleDeleteProduct = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  const isLoading = isInitialChecking || isProductsLoading;
+
+  const updateProductStatusMutation = useUpdateProductStatus();
+
+  const handleStatusTabChange = (tab: string) => {
+    setStatusFilter(tab);
+    setPage(1);
+  };
+
+  const handleOpenDraftModal = (product: Product) => {
+    setSelectedProduct(product);
+    setModalMode("draft");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenPublishModal = (product: Product) => {
+    setSelectedProduct(product);
+    setModalMode("publish");
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!selectedProduct) return;
+
     try {
-      await deleteProductMutation.mutateAsync(id);
-      toast.success("Product deleted successfully");
+      if (modalMode === "draft") {
+        await updateProductStatusMutation.mutateAsync({
+          id: selectedProduct.id,
+          status: "DRAFT",
+        });
+        toast.success(`"${selectedProduct.title}" moved to draft.`);
+      } else if (modalMode === "publish") {
+        await updateProductStatusMutation.mutateAsync({
+          id: selectedProduct.id,
+          status: "ACTIVE",
+        });
+        toast.success(`"${selectedProduct.title}" has been published.`);
+      }
+      setIsModalOpen(false);
+      setSelectedProduct(null);
     } catch (err: any) {
-      console.error("Failed to delete product:", err);
-      toast.error(err.response?.data?.message || "Failed to delete product");
+      console.error("Product action failed:", err);
+      toast.error(err.response?.data?.message || err.message || "Action failed");
     }
   };
+
+  const isActionLoading = updateProductStatusMutation.isPending;
 
   const columns: ColumnDef<Product>[] = [
     {
       header: "SL",
-      cell: (_, idx) => <span className="font-semibold text-slate-500 text-xs">{idx + 1}</span>,
+      cell: (_, idx) => (
+        <div className="font-semibold text-primary text-xs bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">
+          {(page - 1) * pageSize + idx + 1}
+        </div>
+      ),
     },
     {
       header: "Product",
@@ -103,7 +162,7 @@ export const ProductTable: React.FC = () => {
             >
               {p.title}
             </Link>
-            <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+            <p className="text-[10px] text-secondary font-mono mt-0.5">
               ID: {p.id.slice(0, 12)} {p.brand && `• ${p.brand}`}
             </p>
           </div>
@@ -113,7 +172,7 @@ export const ProductTable: React.FC = () => {
     {
       header: "Category",
       cell: (p) => (
-        <span className="font-medium text-slate-600">
+        <span className="font-medium text-primary">
           {typeof p.category === "object" ? (p.category as any)?.name : p.category || "General"}
         </span>
       ),
@@ -123,10 +182,10 @@ export const ProductTable: React.FC = () => {
       cell: (p) => {
         const hasDiscount = p.discountPrice && p.discountPrice > 0;
         return (
-          <div className="font-bold text-slate-800">
+          <div className="font-bold text-primary">
             {hasDiscount ? formatCurrency(p.discountPrice!) : formatCurrency(p.basePrice)}
             {hasDiscount && (
-              <span className="text-[10px] text-slate-400 line-through block font-normal">
+              <span className="text-[10px] text-secondary line-through block font-normal">
                 {formatCurrency(p.basePrice)}
               </span>
             )}
@@ -137,18 +196,17 @@ export const ProductTable: React.FC = () => {
     {
       header: "Stock",
       cell: (p) => {
-        const stockNum = p.totalStock ?? p.stock ?? 0;
+        const stock = p.totalStock ?? p.stock ?? 0;
         return (
           <span
-            className={
-              stockNum === 0
-                ? "font-bold text-rose-600"
-                : stockNum < 15
-                ? "font-semibold text-amber-600"
-                : "font-semibold text-slate-700"
-            }
+            className={`font-semibold ${stock === 0
+              ? "text-rose-600 font-bold"
+              : stock < 15
+                ? "text-amber-600"
+                : "text-primary"
+              }`}
           >
-            {stockNum} units
+            {stock} in stock
           </span>
         );
       },
@@ -159,41 +217,49 @@ export const ProductTable: React.FC = () => {
     },
     {
       header: "Sales",
-      cell: (p) => <span className="font-medium text-slate-700">{p.salesCount || 0} sold</span>,
+      cell: (p) => <span className="font-medium text-primary">{p.salesCount || 0} sold</span>,
     },
     {
       header: "Created",
-      cell: (p) => <span className="text-slate-500">{formatDate(p.createdAt || new Date().toISOString())}</span>,
+      cell: (p) => <span className="text-primary">{formatDate(p.createdAt || new Date().toISOString())}</span>,
     },
     {
       header: "Actions",
       align: "right",
       cell: (p) => (
-        <div className="flex items-center justify-end gap-1">
-          <Link
+        <TableActions>
+          <TableActionButton
+            as={Link}
             href={`/products/${p.id}/edit`}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors"
             title="Edit Product"
           >
             <Edit className="w-4 h-4" />
-          </Link>
-          <button
-            type="button"
-            disabled={deleteProductMutation.isPending && deleteProductMutation.variables === p.id}
-            onClick={() => handleDeleteProduct(p.id)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50"
-            title="Delete Product"
-          >
-            {deleteProductMutation.isPending && deleteProductMutation.variables === p.id ? (
-              <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-          </button>
-        </div>
+          </TableActionButton>
+          {p.status === "DRAFT" ? (
+            <TableActionButton
+              onClick={() => handleOpenPublishModal(p)}
+              hoverVariant="emerald"
+              title="Publish Product"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+            </TableActionButton>
+          ) : (
+            <TableActionButton
+              onClick={() => handleOpenDraftModal(p)}
+              hoverVariant="amber"
+              title="Move to Draft / Archive"
+            >
+              <Archive className="w-4 h-4" />
+            </TableActionButton>
+          )}
+        </TableActions>
       ),
     },
   ];
+
+  if (isLoading && products.length === 0) {
+    return <ProductsSkeleton />;
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
@@ -201,13 +267,23 @@ export const ProductTable: React.FC = () => {
         data={products}
         columns={columns}
         keyExtractor={(item) => item.id}
-        defaultPageSize={10}
+        page={page}
+        pageSize={pageSize}
+        totalItems={meta?.total ?? products.length}
+        totalPages={meta?.totalPages ?? 1}
+        onPageChange={(newPage) => setPage(newPage)}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setPage(1);
+        }}
+        pageSizeOptions={[10, 20, 50, 100]}
+        defaultPageSize={20}
         emptyMessage={
           isLoading
             ? "Searching products..."
             : searchTerm || statusFilter !== "ALL"
-            ? `No products found matching "${searchTerm || statusFilter}".`
-            : "No products in your catalog yet. Click Add Product to create your first item."
+              ? `No products found matching "${searchTerm || statusFilter}".`
+              : "No products in your catalog yet. Click Add Product to create your first item."
         }
         emptyIcon={<PackageOpen className="w-10 h-10 text-slate-300 mb-2" />}
         className="flex-1 min-h-0"
@@ -218,18 +294,17 @@ export const ProductTable: React.FC = () => {
               {["ALL", "ACTIVE", "DRAFT", "OUT_OF_STOCK", "REJECTED"].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setStatusFilter(tab)}
-                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${
-                    statusFilter === tab
-                      ? "border-primary text-primary"
-                      : "border-transparent text-slate-500 hover:text-slate-800"
-                  }`}
+                  onClick={() => handleStatusTabChange(tab)}
+                  className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${statusFilter === tab
+                    ? "border-primary text-primary"
+                    : "border-transparent text-secondary hover:text-primary"
+                    }`}
                 >
                   {tab === "ALL"
                     ? "All Products"
                     : tab === "OUT_OF_STOCK"
-                    ? "Out of Stock"
-                    : tab.charAt(0) + tab.slice(1).toLowerCase()}
+                      ? "Out of Stock"
+                      : tab.charAt(0) + tab.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
@@ -237,35 +312,53 @@ export const ProductTable: React.FC = () => {
             {/* Right Controls: Search + Refresh + Add Product */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-72">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search products, brand, SKU..."
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-primary focus:outline-none focus:border-primary transition-all"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-primary hover:bg-slate-50 transition-colors"
+                className="p-2 bg-white border border-slate-200 rounded-xl text-primary hover:text-primary hover:bg-slate-50 transition-colors"
                 title="Refresh Product List"
               >
                 <RefreshCw
                   className={`w-4 h-4 ${isFetching ? "animate-spin text-primary" : ""}`}
                 />
               </button>
-
-              <Link href="/products/new">
-                <Button variant="primary" size="sm" className="whitespace-nowrap">
-                  <Plus className="w-4 h-4 mr-1.5" />
-                  Add Product
-                </Button>
-              </Link>
             </div>
           </div>
+        }
+      />
+
+      <ArchiveModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          if (!isActionLoading) {
+            setIsModalOpen(false);
+            setSelectedProduct(null);
+          }
+        }}
+        onConfirm={handleConfirmAction}
+        mode={modalMode}
+        isLoading={isActionLoading}
+        item={
+          selectedProduct
+            ? {
+              title: selectedProduct.title,
+              subtitle: `Price: ${formatCurrency(
+                selectedProduct.discountPrice || selectedProduct.basePrice
+              )} • Stock: ${selectedProduct.totalStock ?? selectedProduct.stock ?? 0} units`,
+              image: selectedProduct.images?.[0],
+              badge: getStatusBadge(selectedProduct.status),
+            }
+            : undefined
         }
       />
     </div>

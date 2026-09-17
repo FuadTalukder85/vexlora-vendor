@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
+import { TableActions, TableActionButton } from "@/components/ui/TableActions";
 import { formatCurrency } from "@/lib/utils";
+import { useVendorStore } from "@/stores/useVendorStore";
+import { PayoutsSkeleton } from "./components/PayoutsSkeleton";
 import { toast } from "sonner";
 
 interface PayoutItem {
@@ -71,16 +74,26 @@ const payoutColumns: ColumnDef<PayoutItem>[] = [
     header: "Receipt",
     align: "right",
     cell: () => (
-      <button className="p-1.5 text-slate-400 hover:text-primary transition-colors cursor-pointer">
-        <Download className="w-4 h-4" />
-      </button>
+      <TableActions>
+        <TableActionButton
+          title="Download Receipt"
+          onClick={() => toast.info("Downloading receipt PDF...")}
+        >
+          <Download className="w-4 h-4" />
+        </TableActionButton>
+      </TableActions>
     ),
   },
 ];
 
 export default function PayoutsPage() {
+  const { isInitialChecking } = useVendorStore();
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [requestedAmount, setRequestedAmount] = useState(2485.0);
+
+  if (isInitialChecking) {
+    return <PayoutsSkeleton />;
+  }
 
   const handlePayoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();

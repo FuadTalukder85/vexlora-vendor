@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Pagination } from "./Pagination";
+export { TableActions, TableActionButton } from "./TableActions";
+export type { TableActionsProps, TableActionButtonProps } from "./TableActions";
 
 export interface ColumnDef<T> {
   header: React.ReactNode;
@@ -33,14 +35,22 @@ export interface PaginateTableProps<T> {
   tableClassName?: string;
   maxHeight?: string;
   minHeight?: string;
+
+  // Server-side pagination controls (optional)
+  page?: number;
+  pageSize?: number;
+  totalItems?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
 }
 
 export function PaginateTable<T>({
   data,
   columns,
   keyExtractor,
-  defaultPageSize = 5,
-  pageSizeOptions = [5, 10, 20, 50],
+  defaultPageSize = 20,
+  pageSizeOptions = [10, 20, 50, 100],
   showPagination = true,
   showPageSizeSelector = true,
   emptyMessage = "No records found",
@@ -54,32 +64,59 @@ export function PaginateTable<T>({
   tableClassName,
   maxHeight,
   minHeight,
+  page,
+  pageSize: propPageSize,
+  totalItems: propTotalItems,
+  totalPages: propTotalPages,
+  onPageChange,
+  onPageSizeChange,
 }: PaginateTableProps<T>) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(defaultPageSize);
+  const isServerPaginated = typeof onPageChange === "function";
 
-  // Reset page to 1 whenever total data length or page size changes
+  const [localPage, setLocalPage] = useState(1);
+  const [localPageSize, setLocalPageSize] = useState(defaultPageSize);
+
+  // Reset local page when data length changes significantly in client-side mode
   useEffect(() => {
-    setCurrentPage(1);
-  }, [data.length, pageSize]);
+    if (!isServerPaginated) {
+      setLocalPage(1);
+    }
+  }, [data.length, isServerPaginated]);
 
-  const totalItems = data.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
+  const activePage = isServerPaginated ? (page ?? 1) : localPage;
+  const activePageSize = isServerPaginated
+    ? (propPageSize ?? defaultPageSize)
+    : localPageSize;
+  const activeTotalItems = isServerPaginated
+    ? (propTotalItems ?? data.length)
+    : data.length;
+  const activeTotalPages = isServerPaginated
+    ? (propTotalPages ?? (Math.ceil(activeTotalItems / activePageSize) || 1))
+    : (Math.ceil(activeTotalItems / activePageSize) || 1);
 
-  // Compute paginated slice of data
-  const paginatedData = showPagination
-    ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+  // If server paginated, data is already sliced for the current page; otherwise slice client-side
+  const startIndex = (activePage - 1) * activePageSize;
+  const paginatedData = isServerPaginated
+    ? data
+    : showPagination
+    ? data.slice(startIndex, startIndex + activePageSize)
     : data;
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    if (isServerPaginated && onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setLocalPage(newPage);
     }
   };
 
   const handlePageSizeChange = (newSize: number) => {
-    setPageSize(newSize);
-    setCurrentPage(1);
+    if (isServerPaginated && onPageSizeChange) {
+      onPageSizeChange(newSize);
+    } else {
+      setLocalPageSize(newSize);
+      setLocalPage(1);
+    }
   };
 
   const alignClasses = {
@@ -88,52 +125,57 @@ export function PaginateTable<T>({
     right: "text-right",
   };
 
+  const headerAlignClasses = {
+    left: "text-left justify-start",
+    center: "text-center justify-center",
+    right: "text-right justify-end",
+  };
+
   return (
     <div
       className={cn(
-        "bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col min-h-0",
-        minHeight,
-        maxHeight,
+        "bg-white border border-slate-200/80 rounded-2xl shadow-xs flex flex-col overflow-hidden w-full",
         className
       )}
     >
-      {/* 1. Fixed Title & Action Header Slot */}
-      {(title || action) && (
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white z-30">
+      {/* 1. Optional Top Card Header */}
+      {(title || subtitle || action) && (
+        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            {title && typeof title === "string" ? (
-              <h3 className="text-base font-bold text-primary">{title}</h3>
-            ) : (
-              title
+            {title && (
+              <h2 className="text-base font-bold text-primary tracking-tight">
+                {title}
+              </h2>
             )}
-            {subtitle && typeof subtitle === "string" ? (
-              <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
-            ) : (
-              subtitle
+            {subtitle && (
+              <p className="text-xs text-secondary mt-0.5">{subtitle}</p>
             )}
           </div>
-          {action && <div>{action}</div>}
+          {action && <div className="flex items-center gap-2">{action}</div>}
         </div>
       )}
 
-      {/* 2. Fixed Search & Filter Header Slot */}
+      {/* 2. Optional Header Content (e.g. Filters, Search Bar) */}
       {headerContent && (
-        <div className="p-4 border-b border-slate-100 bg-slate-50/40 shrink-0 z-30">
+        <div className="p-4 border-b border-slate-100 bg-slate-50/50">
           {headerContent}
         </div>
       )}
 
       {/* 3. Table Area with Fixed Header & Scrollable Body */}
-      <div className="overflow-auto flex-1 min-h-0 relative">
+      <div
+        className="overflow-x-auto w-full flex-1"
+        style={{ maxHeight, minHeight }}
+      >
         <table className={cn("w-full border-collapse text-left min-w-max", tableClassName)}>
-          <thead className="sticky top-0 z-20 bg-slate-100 shadow-2xs">
-            <tr className="text-[16px] font-bold text-primary capitalize">
-              {columns.map((col, idx) => (
+          <thead className="sticky top-0 z-10 bg-slate-50/90 backdrop-blur-xs border-b border-slate-100">
+            <tr>
+              {columns.map((col, index) => (
                 <th
-                  key={idx}
+                  key={index}
                   className={cn(
-                    "py-3.5 px-5 bg-slate-100 sticky top-0 z-20",
-                    alignClasses[col.align || "left"],
+                    "py-3.5 px-5 text-xs font-bold text-primary uppercase tracking-wider",
+                    headerAlignClasses[col.align || "left"],
                     col.headerClassName
                   )}
                 >
@@ -149,7 +191,7 @@ export function PaginateTable<T>({
                   key={keyExtractor(row, rowIndex)}
                   onClick={() => onRowClick && onRowClick(row)}
                   className={cn(
-                    "hover:bg-slate-50/50 transition-colors",
+                    "hover:bg-slate-100 transition-colors",
                     onRowClick && "cursor-pointer"
                   )}
                 >
@@ -165,7 +207,7 @@ export function PaginateTable<T>({
                       <td
                         key={colIndex}
                         className={cn(
-                          "py-3.5 px-5",
+                          "py-2.5 px-5",
                           alignClasses[col.align || "left"],
                           col.className
                         )}
@@ -178,10 +220,10 @@ export function PaginateTable<T>({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="py-12 px-5 text-center text-slate-400">
+                <td colSpan={columns.length} className="py-12 px-5 text-center text-secondary">
                   <div className="flex flex-col items-center justify-center gap-2">
                     {emptyIcon || <Inbox className="w-8 h-8 text-slate-300" />}
-                    <p className="text-xs font-semibold text-slate-500">{emptyMessage}</p>
+                    <p className="text-xs font-semibold text-secondary">{emptyMessage}</p>
                   </div>
                 </td>
               </tr>
@@ -190,20 +232,18 @@ export function PaginateTable<T>({
         </table>
       </div>
 
-      {/* 4. Fixed Pagination Footer Slot */}
-      {showPagination && totalItems > 0 && (
-        <div className="shrink-0 bg-white z-30 border-t border-slate-100">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={totalItems}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            pageSizeOptions={pageSizeOptions}
-            showPageSizeSelector={showPageSizeSelector}
-          />
-        </div>
+      {/* 4. Optional Pagination Footer */}
+      {showPagination && activeTotalItems > 0 && (
+        <Pagination
+          currentPage={activePage}
+          totalPages={activeTotalPages}
+          pageSize={activePageSize}
+          totalItems={activeTotalItems}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={pageSizeOptions}
+          showPageSizeSelector={showPageSizeSelector}
+        />
       )}
     </div>
   );

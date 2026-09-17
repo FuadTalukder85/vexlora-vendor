@@ -20,7 +20,7 @@ export default function Error({
         !
       </div>
       <h2 className="text-xl font-extrabold text-primary">Something went wrong</h2>
-      <p className="text-xs text-slate-500 max-w-md">
+      <p className="text-xs text-secondary max-w-md">
         An error occurred while rendering this vendor section. Please try again.
       </p>
       <Button variant="primary" size="sm" onClick={() => reset()}>

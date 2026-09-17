@@ -28,7 +28,7 @@ export default function EditProductPage() {
         <button
           type="button"
           onClick={() => router.push("/products")}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-primary transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Products
@@ -52,7 +52,7 @@ export default function EditProductPage() {
     <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-primary tracking-tight">Edit Product</h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-secondary mt-1">
           Modify pricing, stock inventory, media assets, or status for this listing.
         </p>
       </div>

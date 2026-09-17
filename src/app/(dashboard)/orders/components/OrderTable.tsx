@@ -8,6 +8,7 @@ import { OrderStatusBadge } from "./OrderStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
+import { TableActions, TableActionButton } from "@/components/ui/TableActions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useVendorStore } from "@/stores/useVendorStore";
 import { OrdersSkeleton } from "./OrdersSkeleton";
@@ -172,16 +173,17 @@ export const OrderTable: React.FC = () => {
       header: "Actions",
       align: "right",
       cell: (o) => (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setSelectedOrder(o);
-            setTrackingInput(o.trackingNumber || "");
-          }}
-        >
-          Manage
-        </Button>
+        <TableActions>
+          <TableActionButton
+            className="px-3 py-1.5 font-medium text-xs text-primary"
+            onClick={() => {
+              setSelectedOrder(o);
+              setTrackingInput(o.trackingNumber || "");
+            }}
+          >
+            Manage
+          </TableActionButton>
+        </TableActions>
       ),
     },
   ];

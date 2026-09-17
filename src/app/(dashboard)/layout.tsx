@@ -24,17 +24,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [fetchProfile]);
 
   useEffect(() => {
-    if (
-      !isInitialChecking &&
-      (!isAuthenticated ||
-        (user &&
-          user.role !== "VENDOR" &&
-          user.role !== "ADMIN" &&
-          user.role !== "SUPER_ADMIN"))
-    ) {
-      router.push("/login");
+    if (!isInitialChecking) {
+      const isAuthorized =
+        isAuthenticated &&
+        user &&
+        user.role === "VENDOR" &&
+        user.status !== "BLOCKED";
+
+      if (!isAuthorized) {
+        router.replace("/login");
+      }
     }
   }, [isInitialChecking, isAuthenticated, user, router]);
+
+  // Prevent any protected route UI from rendering before auth is verified
+  if (
+    isInitialChecking ||
+    !isAuthenticated ||
+    !user ||
+    user.role !== "VENDOR" ||
+    user.status === "BLOCKED"
+  ) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

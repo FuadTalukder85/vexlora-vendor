@@ -16,18 +16,18 @@ export const Header: React.FC = () => {
       <div className="flex items-center gap-3 flex-1 max-w-xl">
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl text-slate-500 hover:text-primary hover:bg-slate-100 transition-colors focus:outline-none"
+          className="p-2 rounded-xl text-secondary hover:text-primary hover:bg-slate-100 transition-colors focus:outline-none"
           aria-label="Toggle Navigation Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         <div className="relative w-full hidden sm:block">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" />
           <input
             type="text"
             placeholder="Search products, sub-orders, transactions..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-100/70 border border-transparent rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-slate-300 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-100/70 border border-transparent rounded-xl text-xs text-primary placeholder-secondary focus:outline-none focus:bg-white focus:border-slate-300 transition-all"
           />
         </div>
       </div>
@@ -42,7 +42,7 @@ export const Header: React.FC = () => {
         </Link>
 
         {/* Notifications Icon */}
-        <button className="relative p-2 rounded-xl text-slate-500 hover:text-primary hover:bg-slate-100 transition-colors">
+        <button className="relative p-2 rounded-xl text-secondary hover:text-primary hover:bg-slate-100 transition-colors">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-highlight ring-2 ring-white"></span>
         </button>

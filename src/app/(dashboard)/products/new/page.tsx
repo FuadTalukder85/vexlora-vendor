@@ -6,7 +6,7 @@ export default function NewProductPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-primary tracking-tight">Create New Product</h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-secondary mt-1">
           Add a new item to your store catalog with pricing, stock and media assets.
         </p>
       </div>

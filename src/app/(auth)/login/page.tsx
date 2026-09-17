@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, ArrowRight, Clock, AlertCircle, RefreshCw, Mail, Lock } from "lucide-react";
@@ -11,12 +11,26 @@ import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, fetchProfile, user, profile, isLoading } = useVendorStore();
+  const { login, fetchProfile, user, profile, isAuthenticated, isInitialChecking, isLoading } = useVendorStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [pendingView, setPendingView] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (!isInitialChecking && isAuthenticated && user && user.role === "VENDOR" && profile?.status !== "PENDING" && user.status !== "BLOCKED") {
+      router.replace("/");
+    }
+  }, [isAuthenticated, isInitialChecking, user, profile, router]);
+
+  if (isInitialChecking || (isAuthenticated && user && user.role === "VENDOR" && profile?.status !== "PENDING" && user.status !== "BLOCKED")) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,14 +45,14 @@ export default function LoginPage() {
         toast.info("Your application is currently pending admin review.");
       } else if (resProfile?.status === "APPROVED" || resProfile?.status === undefined) {
         toast.success("Signed in successfully!");
-        router.push("/");
+        router.replace("/");
       } else if (resProfile?.status === "REJECTED" || resProfile?.status === "SUSPENDED") {
         const msg = `Account status: ${resProfile.status}. Please contact support.`;
         setErrorMsg(msg);
         toast.error(msg);
       } else {
         toast.success("Signed in successfully!");
-        router.push("/");
+        router.replace("/");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to sign in. Please verify your credentials.";
@@ -51,7 +65,7 @@ export default function LoginPage() {
     await fetchProfile();
     const currentProfile = useVendorStore.getState().profile;
     if (currentProfile?.status === "APPROVED") {
-      router.push("/");
+      router.replace("/");
     }
   };
 
@@ -66,7 +80,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-extrabold text-primary tracking-tight">
             Vexlora Merchant Hub
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-secondary">
             Sign in to manage your storefront, catalog, sub-orders and payouts
           </p>
         </div>
@@ -82,7 +96,7 @@ export default function LoginPage() {
                 Status: Pending Approval
               </span>
               <h2 className="text-xl font-extrabold text-primary">Application Under Review</h2>
-              <p className="text-xs text-slate-600 max-w-sm mx-auto">
+              <p className="text-xs text-primary max-w-sm mx-auto">
                 Your merchant application for <strong className="text-primary">{profile?.storeName || "your store"}</strong> is currently being reviewed by our admin verification team.
               </p>
             </div>
@@ -93,7 +107,7 @@ export default function LoginPage() {
               </Button>
               <button
                 onClick={() => setPendingView(false)}
-                className="text-xs text-slate-500 hover:text-primary font-semibold py-1"
+                className="text-xs text-secondary hover:text-primary font-semibold py-1 cursor-pointer"
               >
                 Sign in with another account
               </button>
@@ -130,7 +144,7 @@ export default function LoginPage() {
               />
 
               <div className="flex items-center justify-between text-xs">
-                <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-600">
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-primary">
                   <input type="checkbox" className="rounded border-slate-300 text-primary" defaultChecked />
                   Remember me
                 </label>
@@ -151,7 +165,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+            <div className="pt-4 border-t border-slate-100 text-center text-xs text-secondary">
               Want to become a seller on Vexlora?{" "}
               <Link href="/register" className="font-bold text-highlight hover:underline inline-flex items-center gap-1">
                 Apply as Merchant <ArrowRight className="w-3 h-3" />

@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -43,8 +43,12 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 animate-in fade-in duration-200"
+    >
       <div
+        onClick={(e) => e.stopPropagation()}
         className={cn(
           "w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]",
           widthClasses[maxWidth]
@@ -54,7 +58,7 @@ export const Modal: React.FC<ModalProps> = ({
           <h2 className="text-lg font-bold text-primary">{title}</h2>
           <button
             onClick={onClose}
-            className="p-1 text-secondary hover:text-primary rounded-lg hover:bg-slate-100 transition-colors"
+            className="p-1 text-secondary hover:text-primary rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

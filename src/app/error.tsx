@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function Error({
@@ -10,22 +11,21 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("Vendor Dashboard Error:", error);
-  }, [error]);
-
   return (
-    <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-6 space-y-4">
-      <div className="w-14 h-14 bg-rose-50 text-highlight rounded-2xl flex items-center justify-center font-bold text-xl">
-        !
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4 border border-rose-100 shadow-sm">
+        <AlertCircle className="w-8 h-8" />
       </div>
-      <h2 className="text-xl font-extrabold text-primary">Something went wrong</h2>
-      <p className="text-xs text-secondary max-w-md">
-        An error occurred while rendering this vendor section. Please try again.
+      <h2 className="text-xl font-bold text-primary tracking-tight">Something went wrong</h2>
+      <p className="text-xs text-secondary mt-1 max-w-sm">
+        {error.message || "An unexpected error occurred while loading this vendor view."}
       </p>
-      <Button variant="primary" size="sm" onClick={() => reset()}>
-        Try Again
-      </Button>
+      <div className="mt-6 flex items-center gap-3">
+        <Button variant="primary" size="sm" onClick={() => reset()}>
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </Button>
+      </div>
     </div>
   );
 }

@@ -28,10 +28,6 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, isInitialChecking, user, profile, router]);
 
-  if (isInitialChecking || (isAuthenticated && user && user.role === "VENDOR" && profile?.status !== "PENDING" && user.status !== "BLOCKED")) {
-    return null;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);

@@ -152,7 +152,7 @@ export default function PayoutsPage() {
             data={mockPayouts}
             columns={payoutColumns}
             keyExtractor={(p) => p.id}
-            defaultPageSize={5}
+            defaultPageSize={20}
             showPagination={true}
           />
         </div>

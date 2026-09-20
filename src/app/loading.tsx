@@ -1,7 +1,10 @@
 import React from "react";
-import { DashboardSkeleton } from "@/app/(dashboard)/components/DashboardSkeleton";
 
 export default function Loading() {
-  return <DashboardSkeleton />;
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
+      <div className="w-10 h-10 border-4 border-slate-200 border-t-primary rounded-full animate-spin" />
+      <p className="text-xs font-semibold text-secondary animate-pulse">Loading Vendor Portal...</p>
+    </div>
+  );
 }
-

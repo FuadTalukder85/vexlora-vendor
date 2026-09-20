@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { OrderTable } from "./components/OrderTable";
 
 export default function OrdersPage() {
@@ -11,7 +11,9 @@ export default function OrdersPage() {
         </p>
       </div>
 
-      <OrderTable />
+      <Suspense fallback={<div className="p-8 text-center text-xs text-secondary">Loading sub-orders...</div>}>
+        <OrderTable />
+      </Suspense>
     </div>
   );
 }

@@ -1,22 +1,24 @@
 import React from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 text-center space-y-4">
-      <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center font-black text-2xl">
-        404
-      </div>
-      <h1 className="text-2xl font-extrabold text-primary">Page Not Found</h1>
-      <p className="text-xs text-secondary max-w-sm">
-        The vendor portal route you are trying to access does not exist or has been moved.
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 text-center">
+      <h1 className="text-7xl font-black text-primary tracking-tighter">404</h1>
+      <h2 className="text-xl font-bold text-primary mt-2">Page Not Found</h2>
+      <p className="text-xs text-secondary mt-1 max-w-sm">
+        The vendor portal route or resource you requested does not exist or has been relocated.
       </p>
-      <Link href="/">
-        <Button variant="primary" size="md">
-          Return to Dashboard
-        </Button>
-      </Link>
+      <div className="mt-6">
+        <Link href="/">
+          <Button variant="primary" size="sm">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

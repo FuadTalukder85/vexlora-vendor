@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import {
   Store,
   ChevronRight,
   LogOut,
+  Flame,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVendorStore } from "@/stores/useVendorStore";
@@ -21,6 +22,7 @@ import { Badge } from "@/components/ui/Badge";
 const navItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Products", href: "/products", icon: Package },
+  { label: "Flash Deals", href: "/deals", icon: Flame },
   { label: "Orders", href: "/orders", icon: ShoppingBag },
   { label: "Analytics", href: "/analytics", icon: TrendingUp },
   { label: "Payouts & Finance", href: "/payouts", icon: CreditCard },

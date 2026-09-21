@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -467,18 +467,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
       {/* Top Sticky/Floating Action Header */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-border p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary bg-muted hover:bg-muted rounded-xl transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Catalog
           </button>
 
-          <div className="hidden sm:block h-5 w-px bg-slate-200" />
+          <div className="hidden sm:block h-5 w-px bg-muted" />
 
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-secondary">Status:</span>
@@ -579,7 +579,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               {/* Description */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-primary tracking-wide">
+                  <label className="text-sm font-semibold text-primary tracking-wide">
                     Product Description
                   </label>
                   <span className="text-[11px] text-secondary font-mono">
@@ -589,7 +589,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <textarea
                   rows={6}
                   placeholder="Detail key specifications, build materials, dimensions, warranty, and box contents..."
-                  className="w-full px-3.5 py-3 bg-white border border-slate-200 rounded-xl text-sm text-primary placeholder:text-secondary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-y leading-relaxed"
+                  className="w-full px-3.5 py-3 bg-white border border-border rounded-xl text-sm text-primary placeholder:text-secondary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-y leading-relaxed"
                   {...register("description")}
                 />
                 {errors.description && (
@@ -600,8 +600,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               {/* Tags Section */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="text-xs font-semibold text-primary tracking-wide flex items-center gap-1.5">
+              <div className="space-y-2 pt-2 border-t border-border">
+                <label className="text-sm font-semibold text-primary tracking-wide flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5 text-secondary" />
                   Product Tags & Search Keywords
                 </label>
@@ -619,7 +619,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       }
                     }}
                     placeholder="Type keyword and press Enter or Add..."
-                    className="flex-1 h-9 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-primary placeholder:text-secondary focus:bg-white focus:outline-none focus:border-primary transition-all"
+                    className="flex-1 h-9 px-3.5 bg-muted border border-border rounded-xl text-xs text-primary placeholder:text-secondary focus:bg-white focus:outline-none focus:border-primary transition-all"
                   />
                   <Button
                     type="button"
@@ -639,7 +639,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {watchedTags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-semibold text-primary group hover:bg-slate-200 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted border border-border rounded-lg text-xs font-semibold text-primary group hover:bg-muted transition-colors"
                       >
                         #{tag}
                         <button
@@ -666,7 +666,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       key={sug}
                       type="button"
                       onClick={() => handleAddTag(sug)}
-                      className="text-[10px] font-semibold text-primary bg-slate-100 hover:bg-primary/10 hover:text-primary px-2 py-0.5 rounded-md transition-all cursor-pointer"
+                      className="text-[10px] font-semibold text-primary bg-muted hover:bg-primary/10 hover:text-primary px-2 py-0.5 rounded-md transition-all cursor-pointer"
                     >
                       +{sug}
                     </button>
@@ -766,7 +766,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             {showVariants ? (
               <div className="space-y-6">
                 {/* 1. Attribute Dimensions Builder */}
-                <div className="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-4 sm:p-5 space-y-4">
+                <div className="bg-muted/80 border border-border rounded-2xl p-4 sm:p-5 space-y-4">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
                       <h4 className="text-xs font-black text-primary uppercase tracking-wider">
@@ -840,76 +840,94 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   {/* Attribute Dimension Cards */}
                   <div className="space-y-3">
                     {attributeDimensions.length === 0 ? (
-                      <div className="p-3.5 bg-white border border-dashed border-slate-200 rounded-xl text-center">
+                      <div className="p-3.5 bg-white border border-dashed border-border rounded-xl text-center">
                         <p className="text-xs text-secondary">
                           No attributes added yet. Type an attribute name below (e.g. Color, Size, RAM, Storage, Material) and click &quot;Add Attribute Dimension&quot;.
                         </p>
                       </div>
                     ) : (
                       attributeDimensions.map((dim, dimIdx) => (
-                      <div
-                        key={dimIdx}
-                        className="bg-white border border-slate-200 rounded-xl p-3 space-y-2.5 shadow-2xs"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-secondary uppercase">
-                              Attribute Name:
-                            </span>
-                            <span className="text-xs font-black text-primary px-2 py-0.5 bg-slate-100 rounded-md">
-                              {dim.name}
-                            </span>
+                        <div
+                          key={dimIdx}
+                          className="bg-white border border-border rounded-xl p-3 space-y-2.5 shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold text-secondary uppercase">
+                                Attribute Name:
+                              </span>
+                              <span className="text-xs font-black text-primary px-2 py-0.5 bg-muted rounded-md">
+                                {dim.name}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAttributeDimensions((prev) => prev.filter((_, i) => i !== dimIdx));
+                              }}
+                              className="text-secondary hover:text-highlight p-1 rounded-md transition-colors"
+                              title="Remove Attribute"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setAttributeDimensions((prev) => prev.filter((_, i) => i !== dimIdx));
-                            }}
-                            className="text-secondary hover:text-highlight p-1 rounded-md transition-colors"
-                            title="Remove Attribute"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-
-                        {/* Values chips and input */}
-                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          {dim.values.map((val, valIdx) => (
-                            <span
-                              key={valIdx}
-                              className="inline-flex items-center gap-1 bg-primary/5 text-primary border border-primary/20 text-xs font-bold px-2.5 py-1 rounded-lg"
-                            >
-                              <span>{val}</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setAttributeDimensions((prev) =>
-                                    prev.map((d, i) =>
-                                      i === dimIdx
-                                        ? { ...d, values: d.values.filter((_, vi) => vi !== valIdx) }
-                                        : d
-                                    )
-                                  );
-                                }}
-                                className="text-primary/60 hover:text-primary ml-0.5"
+                          {/* Values chips and input */}
+                          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                            {dim.values.map((val, valIdx) => (
+                              <span
+                                key={valIdx}
+                                className="inline-flex items-center gap-1 bg-primary/5 text-primary border border-primary/20 text-xs font-bold px-2.5 py-1 rounded-lg"
                               >
-                                &times;
-                              </button>
-                            </span>
-                          ))}
+                                <span>{val}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAttributeDimensions((prev) =>
+                                      prev.map((d, i) =>
+                                        i === dimIdx
+                                          ? { ...d, values: d.values.filter((_, vi) => vi !== valIdx) }
+                                          : d
+                                      )
+                                    );
+                                  }}
+                                  className="text-primary/60 hover:text-primary ml-0.5"
+                                >
+                                  &times;
+                                </button>
+                              </span>
+                            ))}
 
-                          <div className="flex items-center gap-1">
-                            <input
-                              className="h-7 px-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-primary focus:outline-none focus:border-primary w-28"
-                              placeholder="+ Add value..."
-                              value={newAttrValueInput[dim.name] || ""}
-                              onChange={(e) =>
-                                setNewAttrValueInput((prev) => ({ ...prev, [dim.name]: e.target.value }))
-                              }
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === ",") {
-                                  e.preventDefault();
+                            <div className="flex items-center gap-1">
+                              <input
+                                className="h-7 px-2 bg-muted border border-border rounded-lg text-xs text-primary focus:outline-none focus:border-primary w-28"
+                                placeholder="+ Add value..."
+                                value={newAttrValueInput[dim.name] || ""}
+                                onChange={(e) =>
+                                  setNewAttrValueInput((prev) => ({ ...prev, [dim.name]: e.target.value }))
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === ",") {
+                                    e.preventDefault();
+                                    const val = (newAttrValueInput[dim.name] || "").trim().replace(",", "");
+                                    if (val && !dim.values.includes(val)) {
+                                      setAttributeDimensions((prev) =>
+                                        prev.map((d, i) =>
+                                          i === dimIdx ? { ...d, values: [...d.values, val] } : d
+                                        )
+                                      );
+                                      setNewAttrValueInput((prev) => ({ ...prev, [dim.name]: "" }));
+                                    }
+                                  }
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2 text-[11px]"
+                                onClick={() => {
                                   const val = (newAttrValueInput[dim.name] || "").trim().replace(",", "");
                                   if (val && !dim.values.includes(val)) {
                                     setAttributeDimensions((prev) =>
@@ -919,37 +937,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     );
                                     setNewAttrValueInput((prev) => ({ ...prev, [dim.name]: "" }));
                                   }
-                                }
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="h-7 px-2 text-[11px]"
-                              onClick={() => {
-                                const val = (newAttrValueInput[dim.name] || "").trim().replace(",", "");
-                                if (val && !dim.values.includes(val)) {
-                                  setAttributeDimensions((prev) =>
-                                    prev.map((d, i) =>
-                                      i === dimIdx ? { ...d, values: [...d.values, val] } : d
-                                    )
-                                  );
-                                  setNewAttrValueInput((prev) => ({ ...prev, [dim.name]: "" }));
-                                }
-                              }}
-                            >
-                              Add
-                            </Button>
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )))}
+                      )))}
 
                     {/* Add new attribute input row */}
                     <div className="flex items-center gap-2 pt-1">
                       <input
-                        className="h-8 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-primary focus:outline-none focus:border-primary flex-1 max-w-xs"
+                        className="h-8 px-3 bg-white border border-border rounded-xl text-xs font-medium text-primary focus:outline-none focus:border-primary flex-1 max-w-xs"
                         placeholder="e.g. Color, Size, RAM, Storage, Finish"
                         value={newAttrName}
                         onChange={(e) => setNewAttrName(e.target.value)}
@@ -1010,7 +1010,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </div>
 
                   {variantFields.length === 0 ? (
-                    <div className="text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-2">
+                    <div className="text-center py-8 bg-muted rounded-2xl border border-dashed border-border space-y-2">
                       <p className="text-xs text-secondary font-medium">
                         No variant combinations configured. Add attributes above and click &quot;Generate Combinations Matrix&quot; or add a custom variant.
                       </p>
@@ -1057,13 +1057,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         return (
                           <div
                             key={field.id}
-                            className="bg-white border border-slate-200/90 rounded-2xl p-4 space-y-3 shadow-2xs hover:border-slate-300 transition-colors"
+                            className="bg-white border border-border rounded-2xl p-4 space-y-3 shadow-2xs hover:border-border transition-colors"
                           >
                             {/* Combination attributes header & interactive attribute pickers */}
-                            <div className="flex items-center justify-between flex-wrap gap-2.5 pb-2.5 border-b border-slate-100">
+                            <div className="flex items-center justify-between flex-wrap gap-2.5 pb-2.5 border-b border-border">
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="text-[11px] font-bold text-secondary">Variant #{index + 1}:</span>
-                                
+
                                 {attributeDimensions.length > 0 ? (
                                   <>
                                     {attributeDimensions.map((dim) => {
@@ -1071,7 +1071,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                       return (
                                         <div
                                           key={dim.name}
-                                          className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 hover:border-slate-300 rounded-lg px-2 py-1 text-xs transition-colors"
+                                          className="inline-flex items-center gap-1.5 bg-muted border border-border hover:border-border rounded-lg px-2 py-1 text-xs transition-colors"
                                         >
                                           <span className="text-[10px] font-bold text-secondary uppercase">{dim.name}:</span>
                                           {dim.values.length > 0 ? (
@@ -1106,7 +1106,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                                 }
                                                 setValue(`variants.${index}.attributes`, newAttrs, { shouldDirty: true });
                                               }}
-                                              className="bg-transparent font-bold text-primary text-xs focus:outline-none w-20 border-b border-slate-300 focus:border-primary"
+                                              className="bg-transparent font-bold text-primary text-xs focus:outline-none w-20 border-b border-border focus:border-primary"
                                             />
                                           )}
                                         </div>
@@ -1119,7 +1119,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                       .map(([k, v]) => (
                                         <span
                                           key={k}
-                                          className="inline-flex items-center gap-1 bg-slate-100 text-primary text-[11px] font-medium px-2 py-1 rounded-lg border border-slate-200"
+                                          className="inline-flex items-center gap-1 bg-muted text-primary text-[11px] font-medium px-2 py-1 rounded-lg border border-border"
                                         >
                                           <span className="text-secondary">{k}:</span>
                                           <span className="font-bold">{String(v)}</span>
@@ -1131,7 +1131,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     Object.entries(attributesMap).map(([k, v]) => (
                                       <span
                                         key={k}
-                                        className="inline-flex items-center gap-1 bg-slate-100 text-primary text-[11px] font-bold px-2 py-0.5 rounded-md"
+                                        className="inline-flex items-center gap-1 bg-muted text-primary text-[11px] font-bold px-2 py-0.5 rounded-md"
                                       >
                                         <span className="text-secondary">{k}:</span>
                                         <span>{String(v)}</span>
@@ -1160,7 +1160,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                   SKU <span className="text-highlight font-bold ml-0.5">*</span>
                                 </label>
                                 <input
-                                  className="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-primary focus:bg-white focus:outline-none focus:border-primary"
+                                  className="w-full h-8 px-2.5 bg-muted border border-border rounded-lg text-xs font-mono text-primary focus:bg-white focus:outline-none focus:border-primary"
                                   placeholder="e.g. KB-BLK-01"
                                   {...register(`variants.${index}.sku` as const)}
                                 />
@@ -1173,7 +1173,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 <input
                                   type="number"
                                   step="0.01"
-                                  className="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none focus:border-primary"
+                                  className="w-full h-8 px-2.5 bg-muted border border-border rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none focus:border-primary"
                                   placeholder="99.99"
                                   {...register(`variants.${index}.price` as const, {
                                     valueAsNumber: true,
@@ -1187,7 +1187,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 </label>
                                 <input
                                   type="number"
-                                  className="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none focus:border-primary"
+                                  className="w-full h-8 px-2.5 bg-muted border border-border rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none focus:border-primary"
                                   placeholder="10"
                                   {...register(`variants.${index}.stock` as const, {
                                     valueAsNumber: true,
@@ -1201,13 +1201,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 </label>
                                 <div className="flex items-center gap-1.5">
                                   <input
-                                    className="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-primary focus:bg-white focus:outline-none focus:border-primary truncate"
+                                    className="w-full h-8 px-2.5 bg-muted border border-border rounded-lg text-xs text-primary focus:bg-white focus:outline-none focus:border-primary truncate"
                                     placeholder="Image URL or pick from media"
                                     {...register(`variants.${index}.image` as const)}
                                   />
                                   {galleryItems.length > 0 && (
                                     <select
-                                      className="h-8 px-1 bg-slate-100 border border-slate-200 rounded-lg text-[11px] text-slate-700 max-w-[90px]"
+                                      className="h-8 px-1 bg-muted border border-border rounded-lg text-[11px] text-secondary max-w-[90px]"
                                       onChange={(e) => {
                                         if (e.target.value) {
                                           setValue(`variants.${index}.image`, e.target.value);
@@ -1295,7 +1295,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   Publishing Status
                 </label>
                 <select
-                  className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-primary focus:outline-none focus:border-primary transition-all"
+                  className="w-full h-10 px-3.5 bg-white border border-border rounded-xl text-xs font-bold text-primary focus:outline-none focus:border-primary transition-all"
                   {...register("status")}
                 >
                   <option value="ACTIVE">Active (Live in Marketplace)</option>
@@ -1317,11 +1317,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   Store Category <span className="text-highlight font-bold ml-0.5">*</span>
                 </label>
                 <select
-                  className={`w-full h-10 px-3.5 bg-white border rounded-xl text-xs text-primary focus:outline-none transition-all disabled:bg-slate-50 ${
-                    errors.categoryId
-                      ? "border-highlight focus:border-highlight focus:ring-2 focus:ring-highlight/10"
-                      : "border-slate-200 focus:border-primary"
-                  }`}
+                  className={`w-full h-10 px-3.5 bg-white border rounded-xl text-xs text-primary focus:outline-none transition-all disabled:bg-muted ${errors.categoryId
+                    ? "border-highlight focus:border-highlight focus:ring-2 focus:ring-highlight/10"
+                    : "border-border focus:border-primary"
+                    }`}
                   disabled={isLoadingCategories}
                   {...register("categoryId")}
                 >
@@ -1389,7 +1388,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 }}
                 className={`w-full p-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-all ${isDragging
                   ? "border-primary bg-primary/5 scale-[1.01]"
-                  : "border-slate-200/90 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-300"
+                  : "border-border bg-muted/60 hover:bg-muted hover:border-border"
                   } ${isSaving ? "opacity-75 pointer-events-none" : ""}`}
               >
                 {isSaving ? (
@@ -1400,7 +1399,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </div>
                 ) : (
                   <>
-                    <div className="w-12 h-12 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-center mb-2.5 text-primary">
+                    <div className="w-12 h-12 rounded-xl bg-white border border-border shadow-xs flex items-center justify-center mb-2.5 text-primary">
                       <Upload className="w-5 h-5" />
                     </div>
                     <p className="text-xs font-bold text-primary">
@@ -1427,12 +1426,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               {errors.images && (
-                <p className="text-xs text-rose-500 font-medium">{errors.images.message}</p>
+                <p className="text-xs text-highlight font-medium">{errors.images.message}</p>
               )}
 
               {/* Local Preview Gallery Grid */}
               {galleryItems.length > 0 ? (
-                <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="space-y-2 pt-2 border-t border-border">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-secondary uppercase tracking-wider">
                       Selected Media ({galleryItems.length})
@@ -1451,13 +1450,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         onDragOver={(e) => handleImageDragOver(e, idx)}
                         onDrop={(e) => handleImageDrop(e, idx)}
                         onDragEnd={handleImageDragEnd}
-                        className={`relative aspect-4/3 rounded-xl border overflow-hidden group bg-slate-100 transition-all cursor-grab active:cursor-grabbing select-none ${draggedImageIdx === idx
+                        className={`relative aspect-4/3 rounded-xl border overflow-hidden group bg-muted transition-all cursor-grab active:cursor-grabbing select-none ${draggedImageIdx === idx
                           ? "opacity-40 scale-95 border-dashed border-primary"
                           : dragOverImageIdx === idx
                             ? "ring-2 ring-primary border-primary scale-[1.02]"
                             : idx === 0
                               ? "border-primary/80 ring-2 ring-primary/20"
-                              : "border-slate-200 hover:border-slate-300"
+                              : "border-border hover:border-border"
                           }`}
                       >
                         <ProductImage
@@ -1474,7 +1473,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                               e.stopPropagation();
                               handleRemoveImage(idx);
                             }}
-                            className="p-2 bg-white text-primary hover:text-rose-600 hover:bg-rose-50 rounded-xl shadow-md transition-all hover:scale-110 pointer-events-auto cursor-pointer"
+                            className="p-2 bg-white text-primary hover:text-highlight hover:bg-highlight/10 rounded-xl shadow-md transition-all hover:scale-110 pointer-events-auto cursor-pointer"
                             title="Delete Image"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1496,8 +1495,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
           {/* Card 6: Live Catalog Preview Card */}
           <Card title="Live Catalog Card Preview" subtitle="How this item appears to customers">
-            <div className="border border-slate-200/90 rounded-xl p-3 bg-slate-50/50 space-y-3">
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-slate-200">
+            <div className="border border-border rounded-xl p-3 bg-muted/50 space-y-3">
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
                 {galleryItems[0]?.previewUrl ? (
                   <ProductImage
                     src={galleryItems[0].previewUrl}
@@ -1506,13 +1505,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-secondary gap-1 bg-slate-100">
-                    <ImageIcon className="w-6 h-6 text-slate-300" />
+                  <div className="w-full h-full flex flex-col items-center justify-center text-secondary gap-1 bg-muted">
+                    <ImageIcon className="w-6 h-6 text-secondary/60" />
                     <span className="text-[10px] text-secondary font-medium">No media uploaded</span>
                   </div>
                 )}
                 {discountInfo && (
-                  <div className="absolute top-2 left-2 bg-rose-600 text-white font-black text-[10px] px-2 py-0.5 rounded shadow-sm">
+                  <div className="absolute top-2 left-2 bg-highlight text-white font-black text-[10px] px-2 py-0.5 rounded shadow-sm">
                     {discountInfo.percent}% OFF
                   </div>
                 )}

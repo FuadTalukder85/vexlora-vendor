@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect } from "react";
 import Image from "next/image";
@@ -75,7 +75,7 @@ export default function SettingsPage() {
         <Card title="Branding & Media Assets" subtitle="Displayed on customer-facing storefront">
           <div className="space-y-4">
             {/* Banner preview */}
-            <div className="h-36 w-full bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200">
+            <div className="h-36 w-full bg-muted rounded-xl overflow-hidden relative border border-border">
               {profile?.bannerUrl ? (
                 <Image src={profile.bannerUrl} alt="Store Banner" fill className="object-cover" />
               ) : (
@@ -117,7 +117,7 @@ export default function SettingsPage() {
             </label>
             <textarea
               rows={4}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-primary focus:outline-none focus:border-primary transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl text-sm text-primary focus:outline-none focus:border-primary transition-all resize-none"
               {...register("description")}
             />
             {errors.description && (

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -138,7 +138,7 @@ export const ProductTable: React.FC = () => {
     {
       header: "SL",
       cell: (_, idx) => (
-        <div className="font-semibold text-primary text-xs bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">
+        <div className="font-semibold text-primary text-xs bg-muted w-8 h-8 rounded-full flex items-center justify-center">
           {(page - 1) * pageSize + idx + 1}
         </div>
       ),
@@ -147,7 +147,7 @@ export const ProductTable: React.FC = () => {
       header: "Product",
       cell: (p) => (
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 relative">
+          <div className="w-11 h-11 rounded-xl bg-muted border border-border overflow-hidden shrink-0 relative">
             <ProductImage
               src={p.images?.[0]}
               alt={p.title}
@@ -200,7 +200,7 @@ export const ProductTable: React.FC = () => {
         return (
           <span
             className={`font-semibold ${stock === 0
-              ? "text-rose-600 font-bold"
+              ? "text-highlight font-bold"
               : stock < 15
                 ? "text-amber-600"
                 : "text-primary"
@@ -285,12 +285,12 @@ export const ProductTable: React.FC = () => {
               ? `No products found matching "${searchTerm || statusFilter}".`
               : "No products in your catalog yet. Click Add Product to create your first item."
         }
-        emptyIcon={<PackageOpen className="w-10 h-10 text-slate-300 mb-2" />}
+        emptyIcon={<PackageOpen className="w-10 h-10 text-secondary/60 mb-2" />}
         className="flex-1 min-h-0"
         headerContent={
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* Status Tabs */}
-            <div className="border-b border-slate-200/80 pb-2 flex items-center gap-4 sm:gap-6 overflow-x-auto w-full sm:w-auto">
+            <div className="border-b border-border pb-2 flex items-center gap-4 sm:gap-6 overflow-x-auto w-full sm:w-auto">
               {["ALL", "ACTIVE", "DRAFT", "OUT_OF_STOCK", "REJECTED"].map((tab) => (
                 <button
                   key={tab}
@@ -318,14 +318,14 @@ export const ProductTable: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search products, brand, SKU..."
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-primary focus:outline-none focus:border-primary transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-border rounded-xl text-xs text-primary focus:outline-none focus:border-primary transition-all"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="p-2 bg-white border border-slate-200 rounded-xl text-primary hover:text-primary hover:bg-slate-50 transition-colors"
+                className="p-2 bg-white border border-border rounded-xl text-primary hover:text-primary hover:bg-muted transition-colors"
                 title="Refresh Product List"
               >
                 <RefreshCw

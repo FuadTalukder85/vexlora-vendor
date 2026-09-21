@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -66,8 +66,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200/80 p-8 space-y-6">
+    <div className="min-h-screen bg-muted flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-border p-8 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex w-12 h-12 rounded-2xl bg-primary text-white items-center justify-center font-extrabold text-2xl shadow-md mb-1">
@@ -112,8 +112,8 @@ export default function LoginPage() {
         ) : (
           <>
             {errorMsg && (
-              <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+              <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-highlight/10 border border-highlight/30 text-highlight text-xs">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-highlight" />
                 <div className="flex-1 font-medium">{errorMsg}</div>
               </div>
             )}
@@ -141,7 +141,7 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between text-xs">
                 <label className="flex items-center gap-2 cursor-pointer font-medium text-primary">
-                  <input type="checkbox" className="rounded border-slate-300 text-primary" defaultChecked />
+                  <input type="checkbox" className="rounded border-border text-primary" defaultChecked />
                   Remember me
                 </label>
                 <a href="#" className="font-semibold text-primary hover:underline">
@@ -161,7 +161,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="pt-4 border-t border-slate-100 text-center text-xs text-secondary">
+            <div className="pt-4 border-t border-border text-center text-xs text-secondary">
               Want to become a seller on Vexlora?{" "}
               <Link href="/register" className="font-bold text-highlight hover:underline inline-flex items-center gap-1">
                 Apply as Merchant <ArrowRight className="w-3 h-3" />

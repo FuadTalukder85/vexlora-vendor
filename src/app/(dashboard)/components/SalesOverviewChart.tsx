@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 
 const chartData = [
   { month: "Jan", sales: 12400, payout: 11200 },
@@ -14,7 +14,7 @@ export const SalesOverviewChart: React.FC = () => {
   const maxSales = Math.max(...chartData.map((d) => d.sales));
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
+    <div className="bg-white rounded-2xl border border-border p-5 shadow-xs flex flex-col justify-between">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-base font-bold text-primary">Monthly Sales & Earnings</h3>
@@ -33,7 +33,7 @@ export const SalesOverviewChart: React.FC = () => {
       </div>
 
       {/* Bar Chart Visualization */}
-      <div className="h-48 flex items-end justify-between gap-3 pt-6 pb-2 border-b border-slate-100">
+      <div className="h-48 flex items-end justify-between gap-3 pt-6 pb-2 border-b border-border">
         {chartData.map((item) => {
           const salesHeightPercent = (item.sales / maxSales) * 100;
           const payoutHeightPercent = (item.payout / maxSales) * 100;

@@ -5,7 +5,7 @@ export const variantSchema = z.object({
   attributes: z.record(z.string(), z.any()).optional(),
   price: z.number().positive("Variant price must be greater than 0"),
   stock: z.number().int().nonnegative("Variant stock cannot be negative"),
-  image: z.string().url("Must be a valid URL").optional().nullable().or(z.literal("")),
+  image: z.string().optional().nullable().or(z.literal("")),
 });
 
 export const productSchema = z
@@ -13,7 +13,7 @@ export const productSchema = z
     title: z.string().min(2, "Product title must be at least 2 characters long"),
     slug: z.string().optional(),
     description: z.string().optional().nullable(),
-    categoryId: z.string().optional().nullable(),
+    categoryId: z.string().min(1, "Please select a store category"),
     brand: z.string().optional().nullable(),
     basePrice: z.number().positive("Base price must be greater than 0"),
     discountPrice: z.number().positive("Discount price must be positive").nullable().optional(),

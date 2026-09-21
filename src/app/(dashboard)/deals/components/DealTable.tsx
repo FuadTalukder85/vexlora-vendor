@@ -19,6 +19,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { DealRequestModal, ProductOption } from "./DealRequestModal";
 import { DealsSkeleton } from "./DealsSkeleton";
+import { getVendorSocket } from "@/lib/socket";
 import { toast } from "sonner";
 
 export interface DealRequestItem {
@@ -55,8 +56,8 @@ export const DealTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
+  const fetchData = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true);
     try {
       const [dealsRes, productsRes] = await Promise.all([
         apiClient.get("/deals/requests/vendor/me"),
@@ -70,15 +71,45 @@ export const DealTable: React.FC = () => {
         setProducts(productsRes.data.data);
       }
     } catch (err: unknown) {
-      console.error("Failed to load deals data:", err);
-      toast.error("Failed to load deal requests");
+      if (!silent) {
+        console.error("Failed to load deals data:", err);
+        toast.error("Failed to load deal requests");
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     fetchData();
+
+    // Connect to WebSocket & listen for real-time review updates
+    const socket = getVendorSocket();
+
+    const handleDealReviewed = (payload: any) => {
+      fetchData(true);
+      if (payload.data?.status === "APPROVED" || payload.status === "APPROVED") {
+        toast.success(payload.message || "Your flash deal proposal was approved!", {
+          duration: 5000,
+        });
+      } else {
+        toast.error(payload.message || "Your flash deal proposal was rejected", {
+          duration: 5000,
+        });
+      }
+    };
+
+    const handleDealUpdated = () => {
+      fetchData(true);
+    };
+
+    socket.on("DEAL_REQUEST_REVIEWED", handleDealReviewed);
+    socket.on("DEAL_UPDATED", handleDealUpdated);
+
+    return () => {
+      socket.off("DEAL_REQUEST_REVIEWED", handleDealReviewed);
+      socket.off("DEAL_UPDATED", handleDealUpdated);
+    };
   }, [fetchData]);
 
   if (isLoading) {

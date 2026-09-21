@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -172,6 +172,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const watchedTags = watch("tags") || [];
   const watchedBasePrice = watch("basePrice");
   const watchedDiscountPrice = watch("discountPrice");
+  const watchedTotalStock = watch("totalStock");
   const watchedTitle = watch("title");
   const watchedStatus = watch("status");
   const watchedCategoryId = watch("categoryId");
@@ -191,8 +192,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         toast.error(err);
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        const err = `File "${file.name}" exceeds the maximum 10MB size limit.`;
+      if (file.size > 5 * 1024 * 1024) {
+        const err = `File "${file.name}" exceeds the maximum 5MB size limit.`;
         setSubmitError(err);
         toast.error(err);
         return;
@@ -335,6 +336,33 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     setSubmitError(null);
     setSubmitSuccess(null);
+
+    // Validate variant combinations against Base Price and Total Stock
+    if (data.variants && data.variants.length > 0) {
+      const basePrice = Number(data.basePrice);
+      const totalStock = Number(data.totalStock);
+
+      for (let i = 0; i < data.variants.length; i++) {
+        const v = data.variants[i];
+        const vPrice = Number(v.price);
+        const vStock = Number(v.stock || 0);
+        const vLabel = v.sku?.trim() ? `Variant "${v.sku.trim()}"` : `Variant #${i + 1}`;
+
+        if (basePrice > 0 && vPrice > basePrice) {
+          const err = `${vLabel} price ($${vPrice.toFixed(2)}) cannot be higher than the Base Regular Price ($${basePrice.toFixed(2)}).`;
+          setSubmitError(err);
+          toast.error(err);
+          return;
+        }
+
+        if (totalStock >= 0 && vStock > totalStock) {
+          const err = `${vLabel} stock quantity (${vStock}) cannot be higher than the Total Stock Quantity (${totalStock}).`;
+          setSubmitError(err);
+          toast.error(err);
+          return;
+        }
+      }
+    }
 
     if (galleryItems.length === 0) {
       const err = "At least 1 product image is required.";
@@ -1173,12 +1201,21 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 <input
                                   type="number"
                                   step="0.01"
-                                  className="w-full h-8 px-2.5 bg-muted border border-border rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none focus:border-primary"
+                                  className={`w-full h-8 px-2.5 bg-muted border rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none transition-colors ${
+                                    Number(variantItem?.price) > basePriceNum && basePriceNum > 0
+                                      ? "border-highlight text-highlight focus:border-highlight focus:ring-1 focus:ring-highlight/20"
+                                      : "border-border focus:border-primary"
+                                  }`}
                                   placeholder="99.99"
                                   {...register(`variants.${index}.price` as const, {
                                     valueAsNumber: true,
                                   })}
                                 />
+                                {Number(variantItem?.price) > basePriceNum && basePriceNum > 0 && (
+                                  <p className="text-[10px] text-highlight font-medium mt-0.5 leading-tight">
+                                    &gt; Base (${basePriceNum})
+                                  </p>
+                                )}
                               </div>
 
                               <div className="sm:col-span-2">
@@ -1187,12 +1224,21 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 </label>
                                 <input
                                   type="number"
-                                  className="w-full h-8 px-2.5 bg-muted border border-border rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none focus:border-primary"
+                                  className={`w-full h-8 px-2.5 bg-muted border rounded-lg text-xs font-semibold text-primary focus:bg-white focus:outline-none transition-colors ${
+                                    Number(variantItem?.stock) > Number(watchedTotalStock) && Number(watchedTotalStock) >= 0
+                                      ? "border-highlight text-highlight focus:border-highlight focus:ring-1 focus:ring-highlight/20"
+                                      : "border-border focus:border-primary"
+                                  }`}
                                   placeholder="10"
                                   {...register(`variants.${index}.stock` as const, {
                                     valueAsNumber: true,
                                   })}
                                 />
+                                {Number(variantItem?.stock) > Number(watchedTotalStock) && Number(watchedTotalStock) >= 0 && (
+                                  <p className="text-[10px] text-highlight font-medium mt-0.5 leading-tight">
+                                    &gt; Total ({watchedTotalStock})
+                                  </p>
+                                )}
                               </div>
 
                               <div className="sm:col-span-4">
@@ -1406,7 +1452,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       Click to choose files or drag & drop
                     </p>
                     <p className="text-[11px] text-secondary mt-1">
-                      PNG, JPG, WebP, AVIF (Max 10MB each)
+                      PNG, JPG, WebP, AVIF (Max 5MB each)
                     </p>
                     <Button
                       type="button"

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -45,8 +45,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-slate-200/80 p-8 space-y-6">
+    <div className="min-h-screen bg-muted flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-border p-8 space-y-6">
         <Link
           href="/login"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-secondary hover:text-primary transition-colors"
@@ -63,7 +63,7 @@ export default function RegisterPage() {
             <p className="text-xs text-primary max-w-sm mx-auto">
               Thank you for applying to sell on Vexlora. Your merchant account has been registered and is currently pending administrator verification.
             </p>
-            <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-2xl text-left text-xs text-primary space-y-1 max-w-sm mx-auto">
+            <div className="p-4 bg-muted border border-border/60 rounded-2xl text-left text-xs text-primary space-y-1 max-w-sm mx-auto">
               <p><strong className="text-primary">Store Name:</strong> {storeName}</p>
               <p><strong className="text-primary">Business Email:</strong> {email}</p>
               <p><strong className="text-primary">Status:</strong> <span className="text-amber-600 font-bold">Pending Review</span></p>
@@ -84,8 +84,8 @@ export default function RegisterPage() {
             </div>
 
             {errorMsg && (
-              <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+              <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-highlight/10 border border-highlight/30 text-highlight text-xs">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-highlight" />
                 <div className="flex-1 font-medium">{errorMsg}</div>
               </div>
             )}
@@ -139,11 +139,11 @@ export default function RegisterPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Brief summary of your product offerings..."
-                  className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-slate-300 text-primary"
+                  className="w-full p-3 text-xs bg-muted border border-border rounded-xl focus:outline-none focus:bg-white focus:border-border text-primary"
                 />
               </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs text-primary space-y-1">
+              <div className="p-3 bg-muted border border-border/60 rounded-xl text-xs text-primary space-y-1">
                 <p className="font-bold text-primary">Platform Terms & Commission:</p>
                 <p>Standard seller commission tier is 8.5% per delivered sub-order. No monthly listing fees.</p>
               </div>

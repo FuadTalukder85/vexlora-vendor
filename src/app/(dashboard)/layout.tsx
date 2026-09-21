@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-muted flex">
       {/* Sidebar Navigation */}
       <Sidebar />
 
@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
 
         {user?.status === "BLOCKED" && (
-          <div className="bg-rose-600 text-white px-4 py-2.5 flex items-center gap-2 text-xs font-medium shadow-sm">
+          <div className="bg-highlight text-white px-4 py-2.5 flex items-center gap-2 text-xs font-medium shadow-sm">
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>
               <strong>Account Suspended:</strong> Your merchant account access has been restricted. Please contact Vexlora merchant support.

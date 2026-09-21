@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -34,13 +34,13 @@ export const Sidebar: React.FC = () => {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 bottom-0 z-40 bg-white border-r border-slate-200/80 transition-all duration-300 flex flex-col justify-between w-64",
+        "fixed top-0 left-0 bottom-0 z-40 bg-white border-r border-border transition-all duration-300 flex flex-col justify-between w-64",
         !isSidebarOpen && "-translate-x-full lg:translate-x-0 lg:w-20"
       )}
     >
       {/* Top Header & Brand */}
       <div>
-        <div className="h-16 px-6 border-b border-slate-100 flex items-center justify-between">
+        <div className="h-16 px-6 border-b border-border flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-xl shadow-md group-hover:bg-primary/90 transition-colors">
               V<span className="text-highlight">.</span>
@@ -61,7 +61,7 @@ export const Sidebar: React.FC = () => {
         {/* Store Profile Quick Card */}
         {isSidebarOpen && (
           profile ? (
-            <div className="mx-4 my-4 p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center gap-3">
+            <div className="mx-4 my-4 p-3 rounded-xl bg-muted border border-border/60 flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                 <Store className="w-5 h-5 text-primary" />
               </div>
@@ -75,11 +75,11 @@ export const Sidebar: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="mx-4 my-4 p-3 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center gap-3 animate-pulse">
-              <div className="w-9 h-9 rounded-lg bg-slate-200 shrink-0" />
+            <div className="mx-4 my-4 p-3 rounded-xl bg-muted border border-border/60 flex items-center gap-3 animate-pulse">
+              <div className="w-9 h-9 rounded-lg bg-muted shrink-0" />
               <div className="flex-1 space-y-1.5 min-w-0">
-                <div className="h-3.5 bg-slate-200 rounded w-24" />
-                <div className="h-3 bg-slate-200 rounded w-14" />
+                <div className="h-3.5 bg-muted rounded w-24" />
+                <div className="h-3 bg-muted rounded w-14" />
               </div>
             </div>
           )
@@ -102,7 +102,7 @@ export const Sidebar: React.FC = () => {
                   "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group relative",
                   isActive
                     ? "bg-primary text-white font-semibold shadow-sm"
-                    : "text-primary hover:bg-slate-100 hover:text-primary"
+                    : "text-primary hover:bg-muted hover:text-primary"
                 )}
               >
                 <Icon
@@ -122,11 +122,11 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Bottom Actions / Sign out link */}
-      <div className="p-4 border-t border-slate-100">
+      <div className="p-4 border-t border-border">
         <Link
           href="/login"
           className={cn(
-            "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 transition-all",
+            "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-highlight hover:bg-highlight/10 transition-all",
             !isSidebarOpen && "justify-center"
           )}
         >

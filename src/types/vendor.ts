@@ -21,6 +21,7 @@ export interface VendorProfile {
   bankAccountName?: string | null;
   bankAccountNumber?: string | null;
   bankName?: string | null;
+  stripeAccountId?: string | null;
   contactEmail?: string;
   contactPhone?: string | null;
   status: VendorStatus;

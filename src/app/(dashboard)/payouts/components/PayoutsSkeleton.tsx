@@ -1,68 +1,49 @@
-﻿import React from "react";
+"use client";
+
+import React from "react";
 
 export const PayoutsSkeleton: React.FC = () => {
   return (
     <div className="space-y-6 animate-pulse">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="h-7 w-48 bg-muted rounded-lg" />
-          <div className="h-3.5 w-80 bg-muted/70 rounded" />
-        </div>
-        <div className="h-9 w-40 bg-muted rounded-xl" />
-      </div>
-
-      {/* 3 Financial Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        {[1, 2, 3].map((i) => (
+      {/* 4 Financial KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-3"
+            className="bg-white p-5 rounded-2xl border border-border shadow-xs space-y-3"
           >
-            <div className="h-3 w-32 bg-muted rounded" />
-            <div className="h-8 w-28 bg-muted rounded" />
-            <div className="h-3 w-40 bg-muted rounded" />
+            <div className="flex items-center justify-between">
+              <div className="h-3 bg-muted rounded w-28" />
+              <div className="w-8 h-8 rounded-xl bg-muted" />
+            </div>
+            <div className="h-7 bg-muted rounded w-32" />
+            <div className="h-2.5 bg-muted rounded w-44" />
           </div>
         ))}
       </div>
 
-      {/* Payout History & Bank Info Grid */}
+      {/* Grid: Methods & History Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Payout History Table */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-border space-y-4 shadow-xs">
-          <div className="h-5 w-36 bg-muted rounded" />
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-border p-5 space-y-4">
+          <div className="h-6 bg-muted rounded w-40" />
           <div className="space-y-3 pt-2">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="grid grid-cols-5 gap-3 items-center p-3 rounded-xl bg-muted border border-border"
+                className="h-12 bg-muted/60 rounded-xl flex items-center justify-between px-4"
               >
-                <div className="h-3.5 w-16 bg-muted rounded" />
-                <div className="h-3.5 w-24 bg-muted rounded" />
-                <div className="h-3.5 w-28 bg-muted rounded" />
-                <div className="h-4 w-16 bg-muted rounded" />
-                <div className="h-4 w-12 bg-muted rounded ml-auto" />
+                <div className="h-4 bg-muted rounded w-32" />
+                <div className="h-4 bg-muted rounded w-20" />
+                <div className="h-4 bg-muted rounded w-16" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bank Account Details Card */}
-        <div className="bg-white p-6 rounded-2xl border border-border space-y-4 shadow-xs">
-          <div className="h-5 w-40 bg-muted rounded" />
-          <div className="p-4 bg-muted rounded-xl border border-border space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-muted shrink-0" />
-              <div className="space-y-1.5 flex-1">
-                <div className="h-3.5 w-36 bg-muted rounded" />
-                <div className="h-2.5 w-28 bg-muted/60 rounded" />
-              </div>
-            </div>
-            <div className="pt-2 border-t border-border/60 space-y-1.5">
-              <div className="h-3 w-28 bg-muted rounded" />
-              <div className="h-3 w-36 bg-muted rounded" />
-            </div>
-          </div>
+        <div className="bg-white rounded-2xl border border-border p-5 space-y-4">
+          <div className="h-5 bg-muted rounded w-48" />
+          <div className="h-24 bg-muted/70 rounded-xl" />
+          <div className="h-24 bg-muted/70 rounded-xl" />
         </div>
       </div>
     </div>

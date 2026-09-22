@@ -1,14 +1,19 @@
+"use client";
+
 import React from "react";
 import { DollarSign, ShoppingBag, Package, TrendingUp } from "lucide-react";
 import { StatCard } from "@/components/ui/StatCard";
 import { formatCurrency } from "@/lib/utils";
+import { useVendorPayoutStatistics } from "@/hooks/useVendorPayouts";
 
 export const DashboardStats: React.FC = () => {
+  const { data: payoutStats } = useVendorPayoutStatistics();
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <StatCard
         title="Total Revenue"
-        value={formatCurrency(24850.5)}
+        value={formatCurrency(payoutStats?.totalEarnings ?? 24850.5)}
         change="14.2%"
         isPositive={true}
         icon={DollarSign}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { TrendingUp, ShoppingCart, Users, Award } from "lucide-react";
@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100"
+                className="flex items-center justify-between p-3 rounded-xl bg-muted border border-border"
               >
                 <div>
                   <p className="font-bold text-primary">{item.title}</p>
@@ -97,7 +97,7 @@ export default function AnalyticsPage() {
                   <span className="text-primary">{cat.category}</span>
                   <span className="text-primary">{formatCurrency(cat.amount)} ({cat.percent}%)</span>
                 </div>
-                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full"
                     style={{ width: `${cat.percent}%` }}

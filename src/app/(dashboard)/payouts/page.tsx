@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { DollarSign, Download, Building } from "lucide-react";
@@ -56,11 +56,11 @@ const payoutColumns: ColumnDef<PayoutItem>[] = [
   },
   {
     header: "Period",
-    cell: (p) => <span className="text-slate-600">{p.period}</span>,
+    cell: (p) => <span className="text-secondary">{p.period}</span>,
   },
   {
     header: "Bank Account",
-    cell: (p) => <span className="font-mono text-[11px] text-slate-500">{p.bank}</span>,
+    cell: (p) => <span className="font-mono text-[11px] text-secondary">{p.bank}</span>,
   },
   {
     header: "Amount",
@@ -106,7 +106,7 @@ export default function PayoutsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-primary tracking-tight">Payouts & Finance</h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-secondary mt-1">
             Track net earnings, commission deductions, bank transfer schedules, and requesting payouts.
           </p>
         </div>
@@ -119,27 +119,27 @@ export default function PayoutsPage() {
       {/* Financial Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div className="bg-gradient-to-br from-primary to-slate-900 text-white p-6 rounded-2xl shadow-md space-y-3">
-          <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
+          <span className="text-[11px] font-bold text-secondary/60 uppercase tracking-wider block">
             Available Balance
           </span>
           <h2 className="text-3xl font-black tracking-tight">{formatCurrency(4850.35)}</h2>
-          <p className="text-[11px] text-slate-300">Ready for instant bank transfer</p>
+          <p className="text-[11px] text-secondary/60">Ready for instant bank transfer</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+        <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-3">
+          <span className="text-[11px] font-bold text-secondary uppercase tracking-wider block">
             Pending Escrow Balance
           </span>
           <h2 className="text-3xl font-extrabold text-primary">{formatCurrency(1240.5)}</h2>
-          <p className="text-[11px] text-slate-400">Clears upon sub-order delivery</p>
+          <p className="text-[11px] text-secondary">Clears upon sub-order delivery</p>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+        <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-3">
+          <span className="text-[11px] font-bold text-secondary uppercase tracking-wider block">
             Commission Rate
           </span>
           <h2 className="text-3xl font-extrabold text-highlight">8.5%</h2>
-          <p className="text-[11px] text-slate-400">Fixed tier platform commission</p>
+          <p className="text-[11px] text-secondary">Fixed tier platform commission</p>
         </div>
       </div>
 
@@ -159,17 +159,17 @@ export default function PayoutsPage() {
 
         <div className="space-y-6">
           <Card title="Bank Account Details" subtitle="Destination for funds transfer">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/60 space-y-3">
+            <div className="p-4 bg-muted rounded-xl border border-border/60 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-primary/10 rounded-lg text-primary">
                   <Building className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="font-bold text-xs text-primary">Chase Business Checking</p>
-                  <p className="text-[11px] text-slate-500">Account ending in **** 4892</p>
+                  <p className="text-[11px] text-secondary">Account ending in **** 4892</p>
                 </div>
               </div>
-              <div className="pt-2 border-t border-slate-200/60 text-[11px] space-y-1 text-slate-600">
+              <div className="pt-2 border-t border-border/60 text-[11px] space-y-1 text-secondary">
                 <p>Routing: *****9012</p>
                 <p>Holder: Apex Electronics Inc.</p>
               </div>
@@ -186,7 +186,7 @@ export default function PayoutsPage() {
       >
         <form onSubmit={handlePayoutSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="font-semibold text-slate-700 block mb-1">
+            <label className="font-semibold text-secondary block mb-1">
               Available to Withdraw: {formatCurrency(4850.35)}
             </label>
             <input
@@ -194,11 +194,11 @@ export default function PayoutsPage() {
               max={4850.35}
               value={requestedAmount}
               onChange={(e) => setRequestedAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-primary"
+              className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm font-bold text-primary"
             />
           </div>
 
-          <div className="p-3 bg-slate-50 rounded-xl text-slate-600 space-y-1">
+          <div className="p-3 bg-muted rounded-xl text-secondary space-y-1">
             <p>Target Bank: Chase Business Checking (**** 4892)</p>
             <p>Processing Time: 1 - 2 Business Days</p>
           </div>

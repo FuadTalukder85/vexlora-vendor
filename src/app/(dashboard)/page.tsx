@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { DashboardStats } from "./components/DashboardStats";
@@ -26,13 +26,13 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-extrabold tracking-tight">
             {profile?.storeName || "Merchant Store"}
           </h1>
-          <p className="text-xs text-slate-300">
+          <p className="text-xs text-secondary/60">
             Welcome back! Here is what is happening with your store today.
           </p>
         </div>
         <div className="relative z-10 flex items-center gap-3">
           <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-right">
-            <span className="text-[10px] text-slate-300 uppercase block font-semibold">
+            <span className="text-[10px] text-secondary/60 uppercase block font-semibold">
               Commission Rate
             </span>
             <span className="text-base font-bold text-white">8.5%</span>
@@ -55,28 +55,28 @@ export default function DashboardPage() {
             <div className="space-y-2.5 text-xs font-semibold">
               <a
                 href="/products/new"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl bg-muted hover:bg-primary/5 hover:text-primary border border-border/60 transition-colors"
               >
                 <span>Add New Catalog Item</span>
                 <span className="text-secondary">→</span>
               </a>
               <a
                 href="/orders"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl bg-muted hover:bg-primary/5 hover:text-primary border border-border/60 transition-colors"
               >
                 <span>Process Pending Fulfillment</span>
                 <span className="text-secondary">→</span>
               </a>
               <a
                 href="/payouts"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl bg-muted hover:bg-primary/5 hover:text-primary border border-border/60 transition-colors"
               >
                 <span>Request Net Revenue Payout</span>
                 <span className="text-secondary">→</span>
               </a>
               <a
                 href="/settings"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-primary/5 hover:text-primary border border-slate-200/60 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl bg-muted hover:bg-primary/5 hover:text-primary border border-border/60 transition-colors"
               >
                 <span>Edit Store Banner & Logo</span>
                 <span className="text-secondary">→</span>

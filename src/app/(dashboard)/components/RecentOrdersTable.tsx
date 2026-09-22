@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -37,15 +37,15 @@ const columns: ColumnDef<SubOrder>[] = [
     header: "Customer",
     cell: (row) => (
       <div>
-        <p className="font-semibold text-slate-800">{row.customerName}</p>
-        <p className="text-[10px] text-slate-400">{row.customerEmail}</p>
+        <p className="font-semibold text-primary">{row.customerName}</p>
+        <p className="text-[10px] text-secondary">{row.customerEmail}</p>
       </div>
     ),
   },
   {
     header: "Items",
     cell: (row) => (
-      <span className="font-medium text-slate-700">
+      <span className="font-medium text-secondary">
         {row.items[0]?.productName || "Item"}
         {row.items.length > 1 ? ` +${row.items.length - 1} more` : ""}
       </span>
@@ -54,7 +54,7 @@ const columns: ColumnDef<SubOrder>[] = [
   {
     header: "Total",
     cell: (row) => (
-      <span className="font-semibold text-slate-800">{formatCurrency(row.subtotal)}</span>
+      <span className="font-semibold text-primary">{formatCurrency(row.subtotal)}</span>
     ),
   },
   {
@@ -69,7 +69,7 @@ const columns: ColumnDef<SubOrder>[] = [
   },
   {
     header: "Date",
-    cell: (row) => <span className="text-slate-500">{formatDate(row.createdAt)}</span>,
+    cell: (row) => <span className="text-secondary">{formatDate(row.createdAt)}</span>,
   },
   {
     header: "Action",

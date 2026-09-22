@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Image from "next/image";
@@ -58,7 +58,7 @@ export const OrderTable: React.FC = () => {
     {
       header: "SL",
       cell: (_, idx) => (
-        <span className="font-semibold text-slate-500 text-xs">
+        <span className="font-semibold text-secondary text-xs">
           {(page - 1) * pageSize + idx + 1}
         </span>
       ),
@@ -68,7 +68,7 @@ export const OrderTable: React.FC = () => {
       cell: (o) => (
         <div>
           <span className="font-bold text-primary block">{o.id}</span>
-          <span className="text-[10px] text-slate-400">Order: {o.parentOrderId}</span>
+          <span className="text-[10px] text-secondary">Order: {o.parentOrderId}</span>
         </div>
       ),
     },
@@ -76,8 +76,8 @@ export const OrderTable: React.FC = () => {
       header: "Customer Details",
       cell: (o) => (
         <div>
-          <p className="font-semibold text-slate-800">{o.customerName}</p>
-          <p className="text-[10px] text-slate-400">{o.shippingAddress}</p>
+          <p className="font-semibold text-primary">{o.customerName}</p>
+          <p className="text-[10px] text-secondary">{o.shippingAddress}</p>
         </div>
       ),
     },
@@ -85,7 +85,7 @@ export const OrderTable: React.FC = () => {
       header: "Order Items",
       cell: (o) => (
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-muted border border-border overflow-hidden relative shrink-0">
             {o.items[0]?.productImage ? (
               <Image
                 src={o.items[0].productImage}
@@ -95,24 +95,24 @@ export const OrderTable: React.FC = () => {
                 unoptimized
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+              <div className="w-full h-full flex items-center justify-center bg-muted text-secondary">
                 <Package className="w-4 h-4" />
               </div>
             )}
           </div>
           <div>
-            <p className="font-medium text-slate-800">
+            <p className="font-medium text-primary">
               {o.items[0]?.productName || "Product Item"}
               {o.items.length > 1 && ` +${o.items.length - 1} more`}
             </p>
-            <p className="text-[10px] text-slate-400">Qty: {o.items[0]?.quantity || 1}</p>
+            <p className="text-[10px] text-secondary">Qty: {o.items[0]?.quantity || 1}</p>
           </div>
         </div>
       ),
     },
     {
       header: "Subtotal",
-      cell: (o) => <span className="font-semibold text-slate-800">{formatCurrency(o.subtotal)}</span>,
+      cell: (o) => <span className="font-semibold text-primary">{formatCurrency(o.subtotal)}</span>,
     },
     {
       header: "Net Earnings",
@@ -124,7 +124,7 @@ export const OrderTable: React.FC = () => {
     },
     {
       header: "Date",
-      cell: (o) => <span className="text-slate-500">{formatDate(o.createdAt)}</span>,
+      cell: (o) => <span className="text-secondary">{formatDate(o.createdAt)}</span>,
     },
     {
       header: "Actions",
@@ -169,7 +169,7 @@ export const OrderTable: React.FC = () => {
         headerContent={
           <div className="flex items-center justify-between">
             {/* Status Tabs */}
-            <div className="border-b border-slate-200/80 pb-2 flex items-center gap-6 overflow-x-auto">
+            <div className="border-b border-border pb-2 flex items-center gap-6 overflow-x-auto">
               {["ALL", "PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map((tab) => (
                 <button
                   key={tab}
@@ -180,7 +180,7 @@ export const OrderTable: React.FC = () => {
                   className={`text-xs font-bold transition-all border-b-2 pb-1.5 whitespace-nowrap cursor-pointer ${
                     activeTab === tab
                       ? "border-primary text-primary"
-                      : "border-transparent text-slate-500 hover:text-slate-800"
+                      : "border-transparent text-secondary hover:text-primary"
                   }`}
                 >
                   {tab === "ALL" ? "All Orders" : tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -190,7 +190,7 @@ export const OrderTable: React.FC = () => {
 
             {/* Search Input */}
             <div className="relative w-full max-w-md">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary" />
               <input
                 type="text"
                 value={searchTerm}
@@ -199,7 +199,7 @@ export const OrderTable: React.FC = () => {
                   setPage(1);
                 }}
                 placeholder="Search order ID or customer name..."
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary transition-all"
+                className="w-full pl-10 pr-4 py-2 bg-white border border-border rounded-xl text-xs text-primary focus:outline-none focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -214,16 +214,16 @@ export const OrderTable: React.FC = () => {
           title={`Manage Sub-Order ${selectedOrder.id}`}
         >
           <div className="space-y-4 text-xs">
-            <div className="p-3 bg-slate-50 rounded-xl space-y-1">
+            <div className="p-3 bg-muted rounded-xl space-y-1">
               <p className="font-semibold text-primary">Customer: {selectedOrder.customerName}</p>
-              <p className="text-slate-500">Address: {selectedOrder.shippingAddress}</p>
-              <p className="text-slate-500">Email: {selectedOrder.customerEmail}</p>
+              <p className="text-secondary">Address: {selectedOrder.shippingAddress}</p>
+              <p className="text-secondary">Email: {selectedOrder.customerEmail}</p>
             </div>
 
             <div>
-              <p className="font-semibold text-slate-700 mb-1">Item Details:</p>
+              <p className="font-semibold text-secondary mb-1">Item Details:</p>
               {selectedOrder.items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between border-b border-slate-100 py-1.5">
+                <div key={item.id} className="flex items-center justify-between border-b border-border py-1.5">
                   <span>
                     {item.productName} (x{item.quantity})
                   </span>
@@ -233,18 +233,18 @@ export const OrderTable: React.FC = () => {
             </div>
 
             <div className="pt-2">
-              <label className="font-semibold text-slate-700 block mb-1">Update Tracking Number</label>
+              <label className="font-semibold text-secondary block mb-1">Update Tracking Number</label>
               <input
                 type="text"
                 value={trackingInput}
                 onChange={(e) => setTrackingInput(e.target.value)}
                 placeholder="e.g. TRK-98741029"
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"
+                className="w-full px-3 py-2 border border-border rounded-xl text-xs"
               />
             </div>
 
-            <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
-              <p className="font-semibold text-slate-700">Fulfillment Status:</p>
+            <div className="flex flex-col gap-2 pt-2 border-t border-border">
+              <p className="font-semibold text-secondary">Fulfillment Status:</p>
               <div className="grid grid-cols-3 gap-2">
                 <Button
                   variant="outline"

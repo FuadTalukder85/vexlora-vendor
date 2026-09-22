@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Image, { ImageProps } from "next/image";
@@ -22,7 +22,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
     return (
       <div
         className={cn(
-          "w-full h-full flex items-center justify-center bg-slate-100 text-secondary",
+          "w-full h-full flex items-center justify-center bg-muted text-secondary",
           className
         )}
       >

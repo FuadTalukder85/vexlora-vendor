@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -34,10 +34,10 @@ export default function EditProductPage() {
           Back to Products
         </button>
 
-        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3">
-          <AlertCircle className="w-10 h-10 text-rose-500" />
-          <h3 className="text-base font-bold text-rose-800">Product Not Found</h3>
-          <p className="text-xs text-rose-600 max-w-md">
+        <div className="bg-highlight/10 border border-highlight/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-3">
+          <AlertCircle className="w-10 h-10 text-highlight" />
+          <h3 className="text-base font-bold text-highlight">Product Not Found</h3>
+          <p className="text-xs text-highlight max-w-md">
             {error ? (error as any)?.message || "Unable to load product details from server." : "Product could not be found."}
           </p>
           <Button variant="outline" size="sm" onClick={() => router.push("/products")}>

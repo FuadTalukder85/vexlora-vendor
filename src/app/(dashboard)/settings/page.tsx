@@ -1,157 +1,127 @@
-﻿"use client";
+"use client";
 
-import React, { useEffect } from "react";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, Store, Upload } from "lucide-react";
-import { storeSettingsSchema, StoreSettingsFormValues } from "@/schemas/storeSettingsSchema";
-import { useVendorStore } from "@/stores/useVendorStore";
+import React, { useState } from "react";
+import { Store, FileCheck, CreditCard } from "lucide-react";
+import { useVendorSettingsData } from "@/hooks/useVendorSettings";
 import { SettingsSkeleton } from "./components/SettingsSkeleton";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { toast } from "sonner";
+import { Badge } from "@/components/ui/Badge";
+import { StoreBrandingSettings } from "./components/StoreBrandingSettings";
+import { DocumentsSettings } from "./components/DocumentsSettings";
+import { PayoutsPaymentSettings } from "./components/PayoutsPaymentSettings";
+import { cn } from "@/lib/utils";
 
-export default function SettingsPage() {
-  const { profile, setProfile, isInitialChecking } = useVendorStore();
+type SettingsTab = "store" | "documents" | "payments";
+
+export default function VendorSettingsPage() {
+  const [activeTab, setActiveTab] = useState<SettingsTab>("store");
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<StoreSettingsFormValues>({
-    resolver: zodResolver(storeSettingsSchema),
-    defaultValues: {
-      storeName: profile?.storeName || "",
-      description: profile?.description || "",
-      contactEmail: profile?.contactEmail || "",
-      contactPhone: profile?.contactPhone || "",
-      logoUrl: profile?.logoUrl || "",
-      bannerUrl: profile?.bannerUrl || "",
-    },
-  });
+    profile,
+    payoutStats,
+    stripeStatus,
+    isLoading,
+    updateProfile,
+    isUpdatingProfile,
+    uploadLogo,
+    removeLogo,
+    uploadBanner,
+    removeBanner,
+    uploadDocument,
+    deleteDocument,
+  } = useVendorSettingsData();
 
-  useEffect(() => {
-    if (profile) {
-      reset({
-        storeName: profile.storeName || "",
-        description: profile.description || "",
-        contactEmail: profile.contactEmail || "",
-        contactPhone: profile.contactPhone || "",
-        logoUrl: profile.logoUrl || "",
-        bannerUrl: profile.bannerUrl || "",
-      });
-    }
-  }, [profile, reset]);
-
-  if (isInitialChecking || !profile) {
+  if (isLoading || !profile) {
     return <SettingsSkeleton />;
   }
 
-  const onSubmit = async (data: StoreSettingsFormValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    if (profile) {
-      setProfile({
-        ...profile,
-        ...data,
-      });
-    }
-    toast.success("Store profile settings updated successfully!");
-  };
+  const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
+    { id: "store", label: "Store & Branding", icon: <Store className="w-4 h-4" /> },
+    { id: "documents", label: "Legal & Compliance Documents", icon: <FileCheck className="w-4 h-4" /> },
+    { id: "payments", label: "Payouts & Stripe", icon: <CreditCard className="w-4 h-4" /> },
+  ];
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-extrabold text-primary tracking-tight">Store Profile Settings</h1>
-        <p className="text-xs text-secondary mt-1">
-          Customize your storefront appearance, logo, banner, and customer contact information.
-        </p>
+    <div className="space-y-6 w-full pb-12">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-primary tracking-tight">Store Settings</h1>
+          <p className="text-xs text-secondary mt-1">
+            Customize storefront branding, verify legal compliance, and manage automated payout gateways.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Badge
+            variant={
+              profile.status === "APPROVED"
+                ? "success"
+                : profile.status === "PENDING"
+                  ? "warning"
+                  : profile.status === "SUSPENDED"
+                    ? "danger"
+                    : "neutral"
+            }
+          >
+            Store Status: {profile.status}
+          </Badge>
+          {profile.commissionRate !== undefined && (
+            <Badge variant="primary">Commission: {profile.commissionRate}%</Badge>
+          )}
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Banner & Logo Preview */}
-        <Card title="Branding & Media Assets" subtitle="Displayed on customer-facing storefront">
-          <div className="space-y-4">
-            {/* Banner preview */}
-            <div className="h-36 w-full bg-muted rounded-xl overflow-hidden relative border border-border">
-              {profile?.bannerUrl ? (
-                <Image src={profile.bannerUrl} alt="Store Banner" fill className="object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-secondary text-xs">
-                  No Banner Image Set
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Store Logo URL"
-                placeholder="https://images.unsplash.com/..."
-                {...register("logoUrl")}
-                error={errors.logoUrl?.message}
-              />
-              <Input
-                label="Store Banner URL"
-                placeholder="https://images.unsplash.com/..."
-                {...register("bannerUrl")}
-                error={errors.bannerUrl?.message}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Store Info */}
-        <Card title="General Information" subtitle="Store identity and story">
-          <Input
-            label="Store Name *"
-            placeholder="Apex Electronics Store"
-            {...register("storeName")}
-            error={errors.storeName?.message}
-          />
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-primary tracking-wide">
-              Store Description *
-            </label>
-            <textarea
-              rows={4}
-              className="w-full px-3.5 py-2.5 bg-white border border-border rounded-xl text-sm text-primary focus:outline-none focus:border-primary transition-all resize-none"
-              {...register("description")}
-            />
-            {errors.description && (
-              <p className="text-xs text-highlight font-medium">{errors.description.message}</p>
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-border no-scrollbar w-full">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer",
+              activeTab === tab.id
+                ? "bg-primary text-white shadow-xs"
+                : "text-secondary hover:text-primary hover:bg-muted/70"
             )}
-          </div>
-        </Card>
+          >
+            {tab.icon}
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
 
-        {/* Contact Info */}
-        <Card title="Contact & Support" subtitle="Direct customer service credentials">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Contact Email *"
-              type="email"
-              placeholder="support@apexelectronics.com"
-              {...register("contactEmail")}
-              error={errors.contactEmail?.message}
-            />
-            <Input
-              label="Contact Phone *"
-              placeholder="+1 (555) 234-5678"
-              {...register("contactPhone")}
-              error={errors.contactPhone?.message}
-            />
-          </div>
-        </Card>
+      {/* Tab Panels */}
+      <div className="w-full">
+        {activeTab === "store" && (
+          <StoreBrandingSettings
+            profile={profile}
+            onUpdateProfile={updateProfile}
+            onUploadLogo={uploadLogo}
+            onRemoveLogo={removeLogo}
+            onUploadBanner={uploadBanner}
+            onRemoveBanner={removeBanner}
+            isUpdating={isUpdatingProfile}
+          />
+        )}
 
-        <div className="flex justify-end">
-          <Button type="submit" variant="primary" size="md" isLoading={isSubmitting}>
-            <Save className="w-4 h-4" />
-            Save Profile Changes
-          </Button>
-        </div>
-      </form>
+        {activeTab === "documents" && (
+          <DocumentsSettings
+            documents={profile.documents}
+            onUploadDocument={uploadDocument}
+            onDeleteDocument={deleteDocument}
+          />
+        )}
+
+        {activeTab === "payments" && (
+          <PayoutsPaymentSettings
+            profile={profile}
+            payoutStats={payoutStats}
+            stripeStatus={stripeStatus}
+            onUpdateProfile={updateProfile}
+            isUpdating={isUpdatingProfile}
+          />
+        )}
+      </div>
     </div>
   );
 }

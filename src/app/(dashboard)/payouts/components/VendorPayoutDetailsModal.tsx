@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -21,6 +22,7 @@ export const VendorPayoutDetailsModal: React.FC<VendorPayoutDetailsModalProps> =
   isOpen,
   onClose,
 }) => {
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
   const { data: details, isLoading } = useVendorPayoutDetails(payout?.id || null);
   const cancelMutation = useCancelVendorPayout();
 
@@ -29,14 +31,11 @@ export const VendorPayoutDetailsModal: React.FC<VendorPayoutDetailsModalProps> =
   const current = details || payout;
   const subOrders = details?.subOrders || payout.subOrders || [];
 
-  const handleCancel = async () => {
-    if (!confirm("Are you sure you want to cancel this payout request? All associated sub-orders will be returned to your available withdrawal balance.")) {
-      return;
-    }
-
+  const handleConfirmCancel = async () => {
     try {
       await cancelMutation.mutateAsync(payout.id);
       toast.success("Payout request cancelled successfully. Sub-orders are now available for withdrawal.");
+      setIsConfirmCancelOpen(false);
       onClose();
     } catch (err: any) {
       toast.error(
@@ -59,12 +58,13 @@ export const VendorPayoutDetailsModal: React.FC<VendorPayoutDetailsModalProps> =
   );
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Payout & Sub-Order Breakdown"
-      maxWidth="lg"
-    >
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Payout & Sub-Order Breakdown"
+        maxWidth="lg"
+      >
       <div className="space-y-5">
         {/* Header Summary Box */}
         <div className="p-4 bg-muted/60 rounded-2xl border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -202,7 +202,7 @@ export const VendorPayoutDetailsModal: React.FC<VendorPayoutDetailsModalProps> =
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleCancel}
+                onClick={() => setIsConfirmCancelOpen(true)}
                 isLoading={cancelMutation.isPending}
                 className="text-rose-600 border-rose-200 hover:bg-rose-50 gap-1.5"
               >
@@ -218,5 +218,22 @@ export const VendorPayoutDetailsModal: React.FC<VendorPayoutDetailsModalProps> =
         </div>
       </div>
     </Modal>
+
+    {/* Cancel Confirmation Modal */}
+    <ConfirmationModal
+      isOpen={isConfirmCancelOpen}
+      onClose={() => {
+        if (!cancelMutation.isPending) {
+          setIsConfirmCancelOpen(false);
+        }
+      }}
+      onConfirm={handleConfirmCancel}
+      title="Cancel Payout Request"
+      confirmText="Cancel Request"
+      variant="warning"
+      isLoading={cancelMutation.isPending}
+      description="Are you sure you want to cancel this payout request? All associated sub-orders will be returned to your available withdrawal balance."
+    />
+  </>
   );
 };

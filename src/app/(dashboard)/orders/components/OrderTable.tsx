@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Image from "next/image";
@@ -7,6 +7,7 @@ import { SubOrder, SubOrderStatus } from "@/types/order";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { PaginateTable, ColumnDef } from "@/components/ui/PaginateTable";
 import { TableActions, TableActionButton } from "@/components/ui/TableActions";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -21,6 +22,11 @@ export const OrderTable: React.FC = () => {
   const [pageSize, setPageSize] = useState(20);
   const [selectedOrder, setSelectedOrder] = useState<SubOrder | null>(null);
   const [trackingInput, setTrackingInput] = useState("");
+  const [statusChangingOrder, setStatusChangingOrder] = useState<{
+    orderId: string;
+    newStatus: SubOrderStatus;
+    tracking?: string;
+  } | null>(null);
 
   const { data, isLoading } = useVendorOrders({
     searchTerm,
@@ -34,11 +40,17 @@ export const OrderTable: React.FC = () => {
   const orders = data?.orders || [];
   const meta = data?.meta;
 
-  const handleUpdateStatus = async (
+  const handleUpdateStatus = (
     orderId: string,
     newStatus: SubOrderStatus,
     tracking?: string
   ) => {
+    setStatusChangingOrder({ orderId, newStatus, tracking });
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!statusChangingOrder) return;
+    const { orderId, newStatus, tracking } = statusChangingOrder;
     try {
       await updateStatusMutation.mutateAsync({
         id: orderId,
@@ -46,6 +58,7 @@ export const OrderTable: React.FC = () => {
         trackingNumber: tracking || undefined,
       });
       toast.success(`Sub-order status updated to ${newStatus}`);
+      setStatusChangingOrder(null);
       setSelectedOrder(null);
     } catch (error: any) {
       toast.error(
@@ -277,6 +290,44 @@ export const OrderTable: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Fulfillment Status Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!statusChangingOrder}
+        onClose={() => {
+          if (!updateStatusMutation.isPending) {
+            setStatusChangingOrder(null);
+          }
+        }}
+        onConfirm={handleConfirmStatusChange}
+        title={`Update Order Status to ${statusChangingOrder?.newStatus}`}
+        confirmText={`Set to ${statusChangingOrder?.newStatus}`}
+        variant="primary"
+        isLoading={updateStatusMutation.isPending}
+        description={
+          statusChangingOrder ? (
+            <div className="space-y-2">
+              <p>
+                Are you sure you want to mark sub-order{" "}
+                <span className="font-bold text-primary font-mono">{statusChangingOrder.orderId}</span> as{" "}
+                <span className="font-bold">{statusChangingOrder.newStatus}</span>?
+              </p>
+              {statusChangingOrder.tracking && (
+                <p className="text-[11px] text-secondary">
+                  Tracking Number: <span className="font-mono font-semibold text-primary">{statusChangingOrder.tracking}</span>
+                </p>
+              )}
+              <p className="text-[11px] text-secondary">
+                {statusChangingOrder.newStatus === "DELIVERED"
+                  ? "Marking as Delivered will finalize this shipment and count towards your payout balance."
+                  : statusChangingOrder.newStatus === "SHIPPED"
+                  ? "The customer will be notified that their items are in transit."
+                  : "Order will be moved to confirmed state."}
+              </p>
+            </div>
+          ) : undefined
+        }
+      />
     </div>
   );
 };

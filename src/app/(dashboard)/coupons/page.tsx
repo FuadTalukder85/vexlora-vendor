@@ -15,6 +15,7 @@ import {
 import { CouponTable } from "./components/CouponTable";
 import { CouponModal } from "./components/CouponModal";
 import { CouponUsageLogsTable } from "./components/CouponUsageLogsTable";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { VendorCoupon } from "@/types/coupon";
 
 export default function VendorCouponsPage() {
@@ -23,6 +24,9 @@ export default function VendorCouponsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<VendorCoupon | null>(null);
+  const [deletingCoupon, setDeletingCoupon] = useState<VendorCoupon | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [statusChangingCoupon, setStatusChangingCoupon] = useState<VendorCoupon | null>(null);
 
   const { data: couponData, isLoading: isCouponsLoading } = useVendorCoupons({
     searchTerm: searchTerm.trim() || undefined,
@@ -65,13 +69,36 @@ export default function VendorCouponsPage() {
     setIsModalOpen(false);
   };
 
-  const handleToggleStatus = async (coupon: VendorCoupon) => {
-    await toggleStatusMutation.mutateAsync({ id: coupon.id, isActive: !coupon.isActive });
+  const handleToggleStatus = (coupon: VendorCoupon) => {
+    setStatusChangingCoupon(coupon);
   };
 
-  const handleDeleteCoupon = async (coupon: VendorCoupon) => {
-    if (window.confirm(`Are you sure you want to permanently delete coupon "${coupon.code}"?`)) {
-      await deleteCouponMutation.mutateAsync(coupon.id);
+  const handleConfirmToggleStatus = async () => {
+    if (!statusChangingCoupon) return;
+    try {
+      await toggleStatusMutation.mutateAsync({
+        id: statusChangingCoupon.id,
+        isActive: !statusChangingCoupon.isActive,
+      });
+      setStatusChangingCoupon(null);
+    } catch {
+      // Error handled by mutation hook toast
+    }
+  };
+
+  const handleDeleteCoupon = (coupon: VendorCoupon) => {
+    setDeletingCoupon(coupon);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingCoupon) return;
+    try {
+      await deleteCouponMutation.mutateAsync(deletingCoupon.id);
+      setIsDeleteModalOpen(false);
+      setDeletingCoupon(null);
+    } catch {
+      // Error handled by mutation hook toast
     }
   };
 
@@ -217,6 +244,82 @@ export default function VendorCouponsPage() {
         coupon={editingCoupon}
         onSave={handleSaveCoupon}
         isSaving={createCouponMutation.isPending || updateCouponMutation.isPending}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!deleteCouponMutation.isPending) {
+            setIsDeleteModalOpen(false);
+            setDeletingCoupon(null);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Store Voucher"
+        confirmText="Delete Voucher"
+        variant="danger"
+        isLoading={deleteCouponMutation.isPending}
+        description={
+          deletingCoupon ? (
+            <div className="space-y-3">
+              <p>
+                Are you sure you want to permanently delete store voucher{" "}
+                <span className="font-bold text-primary font-mono">{deletingCoupon.code}</span>?
+              </p>
+              <div className="p-3 bg-muted rounded-xl border border-border flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-bold text-primary">
+                    {deletingCoupon.discountType === "percentage"
+                      ? `${deletingCoupon.discountValue}% OFF`
+                      : `$${deletingCoupon.discountValue} OFF`}
+                  </span>
+                  <span className="text-secondary ml-2">Store Discount</span>
+                </div>
+                <span className="text-secondary font-medium">
+                  {deletingCoupon.usedCount} redemptions
+                </span>
+              </div>
+              <p className="text-[11px] text-highlight font-medium">
+                This action cannot be undone. Customers will no longer be able to use this voucher on your products.
+              </p>
+            </div>
+          ) : undefined
+        }
+      />
+
+      {/* Toggle Status Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!statusChangingCoupon}
+        onClose={() => {
+          if (!toggleStatusMutation.isPending) {
+            setStatusChangingCoupon(null);
+          }
+        }}
+        onConfirm={handleConfirmToggleStatus}
+        title={statusChangingCoupon?.isActive ? "Deactivate Store Voucher" : "Activate Store Voucher"}
+        confirmText={statusChangingCoupon?.isActive ? "Deactivate Voucher" : "Activate Voucher"}
+        variant={statusChangingCoupon?.isActive ? "warning" : "primary"}
+        isLoading={toggleStatusMutation.isPending}
+        description={
+          statusChangingCoupon ? (
+            <div className="space-y-2">
+              <p>
+                Are you sure you want to{" "}
+                <span className="font-bold">
+                  {statusChangingCoupon.isActive ? "deactivate" : "activate"}
+                </span>{" "}
+                voucher{" "}
+                <span className="font-bold text-primary font-mono">{statusChangingCoupon.code}</span>?
+              </p>
+              <p className="text-[11px] text-secondary">
+                {statusChangingCoupon.isActive
+                  ? "Customers will temporarily not be able to apply this discount voucher on your items during checkout."
+                  : "This voucher will become live and active for customer store checkouts immediately."}
+              </p>
+            </div>
+          ) : undefined
+        }
       />
     </div>
   );

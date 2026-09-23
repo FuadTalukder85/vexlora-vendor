@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { VendorDocument } from "@/types/vendor";
 import { UploadDocumentModal } from "./UploadDocumentModal";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 
 interface DocumentsSettingsProps {
@@ -20,14 +21,24 @@ export const DocumentsSettings: React.FC<DocumentsSettingsProps> = ({
   onDeleteDocument,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingDoc, setDeletingDoc] = useState<VendorDocument | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (docId?: string) => {
-    if (!docId) return;
+  const handleDelete = (doc: VendorDocument) => {
+    setDeletingDoc(doc);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingDoc?.id) return;
+    setIsDeleting(true);
     try {
-      await onDeleteDocument(docId);
+      await onDeleteDocument(deletingDoc.id);
       toast.success("Document removed successfully");
+      setDeletingDoc(null);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to remove document");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -67,7 +78,7 @@ export const DocumentsSettings: React.FC<DocumentsSettingsProps> = ({
                     <Eye className="w-3.5 h-3.5" />
                     Preview
                   </a>
-                  <Button type="button" variant="danger" size="sm" onClick={() => handleDelete(doc.id)}>
+                  <Button type="button" variant="danger" size="sm" onClick={() => handleDelete(doc)}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -99,6 +110,37 @@ export const DocumentsSettings: React.FC<DocumentsSettingsProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onUpload={onUploadDocument}
+      />
+
+      {/* Delete Document Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!deletingDoc}
+        onClose={() => {
+          if (!isDeleting) {
+            setDeletingDoc(null);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Remove Compliance Document"
+        confirmText="Remove Document"
+        variant="danger"
+        isLoading={isDeleting}
+        description={
+          deletingDoc ? (
+            <div className="space-y-2">
+              <p>
+                Are you sure you want to remove this{" "}
+                <span className="font-bold text-primary capitalize">
+                  {deletingDoc.type.replace(/_/g, " ")}
+                </span>{" "}
+                document?
+              </p>
+              <p className="text-[11px] text-highlight font-medium">
+                Removing verification documents may delay your store payout processing until re-submitted.
+              </p>
+            </div>
+          ) : undefined
+        }
       />
     </div>
   );

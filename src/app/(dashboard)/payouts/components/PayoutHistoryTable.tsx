@@ -21,6 +21,7 @@ import {
   useVendorPayouts,
 } from "@/hooks/useVendorPayouts";
 import { VendorPayoutDetailsModal } from "./VendorPayoutDetailsModal";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 
 export const PayoutHistoryTable: React.FC = () => {
@@ -31,6 +32,7 @@ export const PayoutHistoryTable: React.FC = () => {
   const [selectedPayout, setSelectedPayout] = useState<VendorPayoutItem | null>(
     null
   );
+  const [cancellingPayout, setCancellingPayout] = useState<VendorPayoutItem | null>(null);
 
   const { data, isLoading, refetch, isRefetching } = useVendorPayouts({
     searchTerm,
@@ -41,14 +43,17 @@ export const PayoutHistoryTable: React.FC = () => {
 
   const cancelMutation = useCancelVendorPayout();
 
-  const handleCancel = async (payout: VendorPayoutItem) => {
-    if (!confirm("Are you sure you want to cancel this payout request?")) {
-      return;
-    }
+  const handleCancel = (payout: VendorPayoutItem) => {
+    setCancellingPayout(payout);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancellingPayout) return;
 
     try {
-      await cancelMutation.mutateAsync(payout.id);
+      await cancelMutation.mutateAsync(cancellingPayout.id);
       toast.success("Payout request cancelled successfully.");
+      setCancellingPayout(null);
     } catch (err: any) {
       toast.error(
         err.response?.data?.message || "Failed to cancel payout request"
@@ -243,6 +248,37 @@ export const PayoutHistoryTable: React.FC = () => {
         payout={selectedPayout}
         isOpen={Boolean(selectedPayout)}
         onClose={() => setSelectedPayout(null)}
+      />
+
+      {/* Cancel Payout Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!cancellingPayout}
+        onClose={() => {
+          if (!cancelMutation.isPending) {
+            setCancellingPayout(null);
+          }
+        }}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Payout Request"
+        confirmText="Cancel Request"
+        variant="warning"
+        isLoading={cancelMutation.isPending}
+        description={
+          cancellingPayout ? (
+            <div className="space-y-2">
+              <p>
+                Are you sure you want to cancel the payout request for{" "}
+                <span className="font-bold text-primary">
+                  {formatCurrency(cancellingPayout.amount)}
+                </span>
+                ?
+              </p>
+              <p className="text-[11px] text-secondary">
+                All associated sub-orders will be released and returned to your available withdrawal balance immediately.
+              </p>
+            </div>
+          ) : undefined
+        }
       />
     </div>
   );

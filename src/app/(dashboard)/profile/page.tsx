@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, ShieldCheck, AlertTriangle } from "lucide-react";
+import { User, ShieldCheck, AlertTriangle, Store } from "lucide-react";
 import { useVendorSettingsData } from "@/hooks/useVendorSettings";
 import { useVendorStore } from "@/stores/useVendorStore";
 import { ProfileSkeleton } from "./components/ProfileSkeleton";
@@ -52,9 +52,14 @@ export default function VendorProfilePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Badge variant="primary">{user.role}</Badge>
-          <Badge variant="neutral">Owner of {profile.storeName}</Badge>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="primary">{user.role || "VENDOR"}</Badge>
+          <Badge variant="neutral" className="text-xs font-semibold py-1 px-3 inline-flex items-center">
+            Owner of{" "}
+            <span className="ml-1.5 px-2 py-0.5 rounded-md bg-primary text-white font-bold text-[11px] uppercase tracking-wide">
+              {profile.storeName}
+            </span>
+          </Badge>
         </div>
       </div>
 
@@ -82,6 +87,7 @@ export default function VendorProfilePage() {
         {activeTab === "owner" && (
           <OwnerProfileTab
             user={user}
+            profile={profile}
             onUpdateUser={updateUser}
             onUploadAvatar={uploadAvatar}
             onRemoveAvatar={removeAvatar}

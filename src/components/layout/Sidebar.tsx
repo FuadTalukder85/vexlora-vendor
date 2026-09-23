@@ -17,27 +17,38 @@ import {
   Flame,
   Bell,
   TicketPercent,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVendorStore } from "@/stores/useVendorStore";
 import { Badge } from "@/components/ui/Badge";
 
-const navItems = [
+interface VendorNavItem {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  permission?: string;
+  anyPermissions?: string[];
+  ownerOnly?: boolean;
+}
+
+const navItems: VendorNavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Products", href: "/products", icon: Package },
-  { label: "Flash Deals", href: "/deals", icon: Flame },
-  { label: "Coupons & Discounts", href: "/coupons", icon: TicketPercent },
-  { label: "Orders", href: "/orders", icon: ShoppingBag },
-  { label: "Analytics", href: "/analytics", icon: TrendingUp },
-  { label: "Payouts & Finance", href: "/payouts", icon: CreditCard },
+  { label: "Products", href: "/products", icon: Package, permission: "product:read" },
+  { label: "Flash Deals", href: "/deals", icon: Flame, permission: "product:read" },
+  { label: "Coupons & Discounts", href: "/coupons", icon: TicketPercent, permission: "coupon:read" },
+  { label: "Orders", href: "/orders", icon: ShoppingBag, permission: "order:read" },
+  { label: "Analytics", href: "/analytics", icon: TrendingUp, anyPermissions: ["order:read", "product:read"] },
+  { label: "Payouts & Finance", href: "/payouts", icon: CreditCard, permission: "payout:read" },
+  { label: "Staff & Team", href: "/staff", icon: Users, permission: "staff:read" },
   { label: "Notifications", href: "/notifications", icon: Bell },
-  { label: "Store Settings", href: "/settings", icon: Settings },
+  { label: "Store Settings", href: "/settings", icon: Settings, permission: "vendor-profile:read" },
 ];
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, profile, isSidebarOpen, logout } = useVendorStore();
+  const { user, profile, isSidebarOpen, logout, isOwner, hasPermission, hasAnyPermission } = useVendorStore();
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -101,7 +112,16 @@ export const Sidebar: React.FC = () => {
 
         {/* Navigation Menu */}
         <nav className="px-3 py-2 space-y-1">
-          {navItems.map((item) => {
+          {navItems
+            .filter((item) => {
+              if (isOwner) return true;
+              if (item.ownerOnly) return isOwner;
+              if (!item.permission && !item.anyPermissions) return true;
+              if (item.permission) return hasPermission(item.permission);
+              if (item.anyPermissions) return hasAnyPermission(item.anyPermissions);
+              return true;
+            })
+            .map((item) => {
             const Icon = item.icon;
             const isActive =
               item.href === "/"

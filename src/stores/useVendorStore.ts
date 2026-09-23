@@ -11,6 +11,9 @@ interface VendorState {
   isInitialChecking: boolean;
   isSidebarOpen: boolean;
   error: string | null;
+  permissions: string[];
+  permissionCategories: string[];
+  isOwner: boolean;
 
   // Actions
   setUser: (user: VendorUser | null) => void;
@@ -30,6 +33,9 @@ interface VendorState {
     bankName?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  hasPermission: (key: string) => boolean;
+  hasAnyPermission: (keys: string[]) => boolean;
+  hasAllPermissions: (keys: string[]) => boolean;
 }
 
 export const useVendorStore = create<VendorState>((set, get) => ({
@@ -40,11 +46,38 @@ export const useVendorStore = create<VendorState>((set, get) => ({
   isInitialChecking: true,
   isSidebarOpen: true,
   error: null,
+  permissions: [],
+  permissionCategories: [],
+  isOwner: true,
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
   setProfile: (profile) => set({ profile }),
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
   setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
+
+  hasPermission: (requiredPermission: string): boolean => {
+    const { permissions, isOwner, user } = get();
+    if (!user) return false;
+    // Store owner has full access across vendor modules
+    if (isOwner || user.isOwner) {
+      return true;
+    }
+    const normalizedReq = requiredPermission.toLowerCase().trim();
+    if (permissions.includes(normalizedReq)) return true;
+    const [resource] = normalizedReq.split(":");
+    if (permissions.includes(`${resource}:*`)) return true;
+    return false;
+  },
+
+  hasAnyPermission: (keys: string[]): boolean => {
+    const { hasPermission } = get();
+    return keys.some((key) => hasPermission(key));
+  },
+
+  hasAllPermissions: (keys: string[]): boolean => {
+    const { hasPermission } = get();
+    return keys.every((key) => hasPermission(key));
+  },
 
   fetchProfile: async () => {
     set({ isLoading: true });
@@ -69,6 +102,9 @@ export const useVendorStore = create<VendorState>((set, get) => ({
           isAuthenticated: false,
           isInitialChecking: false,
           isLoading: false,
+          permissions: [],
+          permissionCategories: [],
+          isOwner: true,
         });
         return;
       }
@@ -100,6 +136,9 @@ export const useVendorStore = create<VendorState>((set, get) => ({
           isInitialChecking: false,
           isLoading: false,
           error: "Access restricted to vendor accounts only.",
+          permissions: [],
+          permissionCategories: [],
+          isOwner: true,
         });
         return;
       }
@@ -114,6 +153,24 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         // Profile may not exist yet
       }
 
+      // Fetch RBAC effective permissions
+      let resolvedPermissions: string[] = [];
+      let resolvedCategories: string[] = [];
+      const userIsOwner = userData.isOwner !== false;
+
+      try {
+        const permRes = await apiClient.get("/rbac/me/permissions", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const permData = permRes.data?.data;
+        if (permData?.permissions) {
+          resolvedPermissions = permData.permissions;
+          resolvedCategories = permData.categories || [];
+        }
+      } catch {
+        // Fallback
+      }
+
       if (typeof window !== "undefined") {
         localStorage.setItem("vexlora_vendor_user", JSON.stringify(userData));
         if (profileData) {
@@ -122,12 +179,15 @@ export const useVendorStore = create<VendorState>((set, get) => ({
       }
 
       set({
-        user: userData,
+        user: { ...userData, isOwner: userIsOwner, permissions: resolvedPermissions },
         profile: profileData,
         isAuthenticated: true,
         isInitialChecking: false,
         isLoading: false,
         error: null,
+        permissions: resolvedPermissions,
+        permissionCategories: resolvedCategories,
+        isOwner: userIsOwner,
       });
     } catch {
       if (typeof window !== "undefined") {
@@ -146,6 +206,9 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         isAuthenticated: false,
         isInitialChecking: false,
         isLoading: false,
+        permissions: [],
+        permissionCategories: [],
+        isOwner: true,
       });
     }
   },
@@ -280,6 +343,9 @@ export const useVendorStore = create<VendorState>((set, get) => ({
         isInitialChecking: false,
         isLoading: false,
         error: null,
+        permissions: [],
+        permissionCategories: [],
+        isOwner: true,
       });
     }
   },

@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Save, CheckCircle2 } from "lucide-react";
+import { Save, CheckCircle2, Store } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ImageUploadDropzone } from "@/components/ui/ImageUploadDropzone";
-import { VendorUser } from "@/types/vendor";
+import { VendorUser, VendorProfile } from "@/types/vendor";
 import { toast } from "sonner";
 
 interface OwnerProfileTabProps {
   user: VendorUser;
+  profile?: VendorProfile;
   onUpdateUser: (data: { name?: string; phone?: string | null }) => Promise<any>;
   onUploadAvatar: (file: File) => Promise<any>;
   onRemoveAvatar: () => Promise<any>;
@@ -20,6 +21,7 @@ interface OwnerProfileTabProps {
 
 export const OwnerProfileTab: React.FC<OwnerProfileTabProps> = ({
   user,
+  profile,
   onUpdateUser,
   onUploadAvatar,
   onRemoveAvatar,
@@ -92,12 +94,20 @@ export const OwnerProfileTab: React.FC<OwnerProfileTabProps> = ({
             </div>
             <div>
               <label className="text-xs font-semibold text-primary tracking-wide block mb-1">
-                Email Verification Status
+                Store Ownership & Status
               </label>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+                {profile?.storeName && (
+                  <Badge variant="neutral" className="text-xs font-semibold py-1 px-3 inline-flex items-center">
+                    Owner of{" "}
+                    <span className="ml-1.5 px-2 py-0.5 rounded-md bg-primary text-white font-bold text-[11px] uppercase tracking-wide">
+                      {profile.storeName}
+                    </span>
+                  </Badge>
+                )}
                 <Badge variant="success">
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                  Verified
+                  Verified Merchant
                 </Badge>
               </div>
             </div>

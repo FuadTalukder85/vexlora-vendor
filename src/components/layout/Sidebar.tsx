@@ -16,6 +16,7 @@ import {
   LogOut,
   Flame,
   Bell,
+  TicketPercent,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVendorStore } from "@/stores/useVendorStore";
@@ -25,6 +26,7 @@ const navItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Products", href: "/products", icon: Package },
   { label: "Flash Deals", href: "/deals", icon: Flame },
+  { label: "Coupons & Discounts", href: "/coupons", icon: TicketPercent },
   { label: "Orders", href: "/orders", icon: ShoppingBag },
   { label: "Analytics", href: "/analytics", icon: TrendingUp },
   { label: "Payouts & Finance", href: "/payouts", icon: CreditCard },

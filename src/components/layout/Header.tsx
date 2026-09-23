@@ -42,10 +42,14 @@ export const Header: React.FC = () => {
         </Link>
 
         {/* Notifications Icon */}
-        <button className="relative p-2 rounded-xl text-secondary hover:text-primary hover:bg-muted transition-colors">
+        <Link
+          href="/notifications"
+          className="relative p-2 rounded-xl text-secondary hover:text-primary hover:bg-muted transition-colors"
+          title="Notifications"
+        >
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-highlight ring-2 ring-white"></span>
-        </button>
+        </Link>
 
         <div className="h-6 w-[1px] bg-muted my-auto"></div>
 

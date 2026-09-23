@@ -165,7 +165,7 @@ export function PaginateTable<T>({
 
       {/* 3. Table Area with Fixed Header & Scrollable Body */}
       <div
-        className="overflow-x-auto w-full flex-1 relative"
+        className="overflow-auto w-full flex-1 relative"
         style={{ maxHeight, minHeight }}
       >
         <table className={cn("w-full border-collapse text-left min-w-max", tableClassName)}>

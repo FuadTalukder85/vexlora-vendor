@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -18,6 +18,7 @@ import {
   Bell,
   TicketPercent,
   Users,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useVendorStore } from "@/stores/useVendorStore";
@@ -34,6 +35,7 @@ interface VendorNavItem {
 
 const navItems: VendorNavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Customer Chat", href: "/messages", icon: MessageSquare },
   { label: "Products", href: "/products", icon: Package, permission: "product:read" },
   { label: "Flash Deals", href: "/deals", icon: Flame, permission: "product:read" },
   { label: "Coupons & Discounts", href: "/coupons", icon: TicketPercent, permission: "coupon:read" },

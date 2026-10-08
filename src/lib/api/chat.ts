@@ -7,6 +7,7 @@ export interface ChatMessage {
   senderRole: "CUSTOMER" | "VENDOR" | "ADMIN";
   text: string;
   attachments?: string[];
+  isDelivered?: boolean;
   isRead: boolean;
   createdAt: string;
   sender?: {

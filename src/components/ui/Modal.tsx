@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title: string | React.ReactNode;
   children: React.ReactNode;
-  maxWidth?: "sm" | "md" | "lg" | "xl";
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
+  className?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -18,6 +19,7 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   children,
   maxWidth = "md",
+  className,
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -39,19 +41,27 @@ export const Modal: React.FC<ModalProps> = ({
     sm: "max-w-sm",
     md: "max-w-md",
     lg: "max-w-lg",
-    xl: "max-w-2xl",
+    xl: "max-w-xl",
+    "2xl": "max-w-2xl",
+    "3xl": "max-w-3xl",
+    "4xl": "max-w-4xl",
+    "5xl": "max-w-5xl",
+    "6xl": "max-w-6xl",
+    "7xl": "max-w-7xl",
+    full: "max-w-[96vw]",
   };
 
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/30 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-primary/30 animate-in fade-in duration-200"
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className={cn(
           "w-full bg-white rounded-2xl shadow-xl border border-border overflow-hidden flex flex-col max-h-[90vh]",
-          widthClasses[maxWidth]
+          widthClasses[maxWidth],
+          className
         )}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">

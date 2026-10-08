@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
-import React, { useEffect } from "react";
-import { X, Archive, FileEdit, Trash2, CheckCircle2, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import React from "react";
+import { Archive, FileEdit, Trash2, CheckCircle2, Loader2 } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { cn } from "@/lib/utils";
 
 export type ArchiveModalMode = "draft" | "archive" | "delete" | "publish";
 
@@ -27,7 +28,7 @@ export interface ArchiveModalProps {
   variant?: "warning" | "danger" | "primary" | "secondary";
   isLoading?: boolean;
   icon?: React.ReactNode;
-  maxWidth?: "sm" | "md" | "lg";
+  maxWidth?: "sm" | "md" | "lg" | "xl";
 }
 
 export const ArchiveModal: React.FC<ArchiveModalProps> = ({
@@ -45,22 +46,6 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   icon,
   maxWidth = "md",
 }) => {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isLoading) onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, isLoading, onClose]);
-
-  if (!isOpen) return null;
-
   // Mode defaults
   const modePresets = {
     draft: {
@@ -70,7 +55,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
       defaultConfirmText: "Move to Draft",
       defaultVariant: "warning" as const,
       iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-      defaultIcon: <FileEdit className="w-6 h-6" />,
+      defaultIcon: <FileEdit className="w-5 h-5" />,
     },
     archive: {
       defaultTitle: "Archive Product",
@@ -79,7 +64,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
       defaultConfirmText: "Archive Product",
       defaultVariant: "warning" as const,
       iconBg: "bg-amber-50 text-amber-600 border-amber-200",
-      defaultIcon: <Archive className="w-6 h-6" />,
+      defaultIcon: <Archive className="w-5 h-5" />,
     },
     delete: {
       defaultTitle: "Delete Product",
@@ -88,7 +73,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
       defaultConfirmText: "Delete Permanently",
       defaultVariant: "danger" as const,
       iconBg: "bg-highlight/10 text-highlight border-highlight/30",
-      defaultIcon: <Trash2 className="w-6 h-6" />,
+      defaultIcon: <Trash2 className="w-5 h-5" />,
     },
     publish: {
       defaultTitle: "Publish Product",
@@ -97,7 +82,7 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
       defaultConfirmText: "Publish Now",
       defaultVariant: "primary" as const,
       iconBg: "bg-emerald-50 text-emerald-600 border-emerald-200",
-      defaultIcon: <CheckCircle2 className="w-6 h-6" />,
+      defaultIcon: <CheckCircle2 className="w-5 h-5" />,
     },
   };
 
@@ -108,12 +93,6 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   const resolvedVariant = variant || currentPreset.defaultVariant;
   const modalIcon = icon || currentPreset.defaultIcon;
 
-  const widthClasses = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-  };
-
   const confirmButtonStyles = {
     warning: "bg-amber-500 hover:bg-amber-600 text-white focus:ring-amber-400",
     danger: "bg-highlight hover:opacity-90 text-white focus:ring-highlight",
@@ -122,75 +101,52 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/60 backdrop-blur-xs animate-in fade-in duration-200"
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !isLoading) {
-          onClose();
-        }
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={isLoading ? () => {} : onClose}
+      title={modalTitle}
+      maxWidth={maxWidth}
     >
-      <div
-        className={cn(
-          "w-full bg-white rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[90vh] transition-all transform animate-in zoom-in-95 duration-200",
-          widthClasses[maxWidth]
-        )}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-2">
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "w-10 h-10 rounded-xl border flex items-center justify-center shrink-0",
-                currentPreset.iconBg
-              )}
-            >
-              {modalIcon}
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-primary">{modalTitle}</h2>
-            </div>
-          </div>
-          <button
-            type="button"
-            disabled={isLoading}
-            onClick={onClose}
-            className="p-1.5 text-secondary hover:text-primary rounded-lg hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
+      <div className="space-y-4">
+        <div className="flex items-start gap-3.5">
+          <div
+            className={cn(
+              "w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 mt-0.5",
+              currentPreset.iconBg
+            )}
           >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            {modalIcon}
+          </div>
+          <div className="space-y-2 flex-1 min-w-0">
+            <p className="text-xs text-secondary leading-relaxed">{modalDescription}</p>
 
-        {/* Content Body */}
-        <div className="px-6 py-4 flex flex-col gap-4 overflow-y-auto">
-          <p className="text-xs text-primary leading-relaxed">{modalDescription}</p>
-
-          {/* Optional Item Preview Card */}
-          {item && (
-            <div className="flex items-center gap-3.5 p-3 rounded-xl bg-muted border border-border">
-              {item.image !== undefined && (
-                <div className="w-12 h-12 rounded-lg bg-white border border-border overflow-hidden shrink-0 relative">
-                  <ProductImage
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-primary truncate">{item.title}</p>
-                {item.subtitle && (
-                  <p className="text-[11px] text-secondary truncate mt-0.5">{item.subtitle}</p>
+            {/* Optional Item Preview Card */}
+            {item && (
+              <div className="flex items-center gap-3.5 p-3 rounded-xl bg-muted border border-border">
+                {item.image !== undefined && (
+                  <div className="w-12 h-12 rounded-lg bg-white border border-border overflow-hidden shrink-0 relative">
+                    <ProductImage
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-primary truncate">{item.title}</p>
+                  {item.subtitle && (
+                    <p className="text-[11px] text-secondary truncate mt-0.5">{item.subtitle}</p>
+                  )}
+                </div>
+                {item.badge && <div className="shrink-0">{item.badge}</div>}
               </div>
-              {item.badge && <div className="shrink-0">{item.badge}</div>}
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-2.5 px-6 py-4 bg-muted/80 border-t border-border">
+        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
           <button
             type="button"
             disabled={isLoading}
@@ -213,6 +169,6 @@ export const ArchiveModal: React.FC<ArchiveModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };
